@@ -1,6 +1,6 @@
 import pytest
 
-from freqtrade.enums import CandleType
+from fxtbot.enums import CandleType
 
 
 @pytest.mark.parametrize(

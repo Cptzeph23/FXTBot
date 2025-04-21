@@ -11,8 +11,8 @@ import pytest
 from pandas import DataFrame
 from sqlalchemy import select
 
-from freqtrade.constants import CANCEL_REASON, UNLIMITED_STAKE_AMOUNT
-from freqtrade.enums import (
+from fxtbot.constants import CANCEL_REASON, UNLIMITED_STAKE_AMOUNT
+from fxtbot.enums import (
     CandleType,
     ExitCheckTuple,
     ExitType,
@@ -21,7 +21,7 @@ from freqtrade.enums import (
     SignalDirection,
     State,
 )
-from freqtrade.exceptions import (
+from fxtbot.exceptions import (
     DependencyException,
     ExchangeError,
     InsufficientFundsError,
@@ -30,11 +30,11 @@ from freqtrade.exceptions import (
     PricingError,
     TemporaryError,
 )
-from freqtrade.freqtradebot import FreqtradeBot
-from freqtrade.persistence import Order, PairLocks, Trade
-from freqtrade.plugins.protections.iprotection import ProtectionReturn
-from freqtrade.util.datetime_helpers import dt_now, dt_utc
-from freqtrade.worker import Worker
+from fxtbot.freqtradebot import FreqtradeBot
+from fxtbot.persistence import Order, PairLocks, Trade
+from fxtbot.plugins.protections.iprotection import ProtectionReturn
+from fxtbot.util.datetime_helpers import dt_now, dt_utc
+from fxtbot.worker import Worker
 from tests.conftest import (
     EXMS,
     create_mock_trades,
@@ -70,8 +70,8 @@ def patch_RPCManager(mocker) -> MagicMock:
     :param mocker: mocker to patch RPCManager class
     :return: RPCManager.send_msg MagicMock to track if this method is called
     """
-    mocker.patch("freqtrade.rpc.telegram.Telegram", MagicMock())
-    rpc_mock = mocker.patch("freqtrade.freqtradebot.RPCManager.send_msg", MagicMock())
+    mocker.patch("fxtbot.rpc.telegram.Telegram", MagicMock())
+    rpc_mock = mocker.patch("fxtbot.freqtradebot.RPCManager.send_msg", MagicMock())
     return rpc_mock
 
 
@@ -90,7 +90,7 @@ def test_freqtradebot_state(mocker, default_conf_usdt, markets) -> None:
 
 def test_process_stopped(mocker, default_conf_usdt) -> None:
     freqtrade = get_patched_freqtradebot(mocker, default_conf_usdt)
-    coo_mock = mocker.patch("freqtrade.freqtradebot.FreqtradeBot.cancel_all_open_orders")
+    coo_mock = mocker.patch("fxtbot.freqtradebot.FreqtradeBot.cancel_all_open_orders")
     freqtrade.process_stopped()
     assert coo_mock.call_count == 0
 
@@ -107,8 +107,8 @@ def test_process_calls_sendmsg(mocker, default_conf_usdt) -> None:
 
 
 def test_bot_cleanup(mocker, default_conf_usdt, caplog) -> None:
-    mock_cleanup = mocker.patch("freqtrade.freqtradebot.Trade.commit")
-    coo_mock = mocker.patch("freqtrade.freqtradebot.FreqtradeBot.cancel_all_open_orders")
+    mock_cleanup = mocker.patch("fxtbot.freqtradebot.Trade.commit")
+    coo_mock = mocker.patch("fxtbot.freqtradebot.FreqtradeBot.cancel_all_open_orders")
     freqtrade = get_patched_freqtradebot(mocker, default_conf_usdt)
     freqtrade.cleanup()
     assert log_has("Cleaning up modules ...", caplog)
@@ -121,9 +121,9 @@ def test_bot_cleanup(mocker, default_conf_usdt, caplog) -> None:
 
 
 def test_bot_cleanup_db_errors(mocker, default_conf_usdt, caplog) -> None:
-    mocker.patch("freqtrade.freqtradebot.Trade.commit", side_effect=OperationalException())
+    mocker.patch("fxtbot.freqtradebot.Trade.commit", side_effect=OperationalException())
     mocker.patch(
-        "freqtrade.freqtradebot.FreqtradeBot.check_for_open_trades",
+        "fxtbot.freqtradebot.FreqtradeBot.check_for_open_trades",
         side_effect=OperationalException(),
     )
     freqtrade = get_patched_freqtradebot(mocker, default_conf_usdt)
@@ -183,7 +183,7 @@ def test_load_strategy_no_keys(default_conf_usdt, mocker, runmode, caplog) -> No
     patch_exchange(mocker)
     conf = deepcopy(default_conf_usdt)
     conf["runmode"] = runmode
-    erm = mocker.patch("freqtrade.freqtradebot.ExchangeResolver.load_exchange")
+    erm = mocker.patch("fxtbot.freqtradebot.ExchangeResolver.load_exchange")
 
     freqtrade = FreqtradeBot(conf)
     strategy_config = freqtrade.strategy.config
@@ -514,7 +514,7 @@ def test_enter_positions_no_pairs_left(
         create_order=MagicMock(return_value=limit_buy_order_usdt_open),
         get_fee=fee,
     )
-    mocker.patch("freqtrade.configuration.config_validation._validate_whitelist")
+    mocker.patch("fxtbot.configuration.config_validation._validate_whitelist")
     default_conf_usdt["exchange"]["pair_whitelist"] = whitelist
     freqtrade = FreqtradeBot(default_conf_usdt)
     patch_get_signal(freqtrade)
@@ -706,7 +706,7 @@ def test_process_trade_creation(
         r"with stake_amount: 60.0 and price: .*",
         caplog,
     )
-    mocker.patch("freqtrade.freqtradebot.FreqtradeBot._check_and_execute_exit")
+    mocker.patch("fxtbot.freqtradebot.FreqtradeBot._check_and_execute_exit")
 
     # Fill trade.
     freqtrade.process()
@@ -853,7 +853,7 @@ def test_process_informative_pairs_added(default_conf_usdt, ticker_usdt, mocker)
         return_value=[("BTC/ETH", "1m", CandleType.SPOT), ("ETH/USDT", "1h", CandleType.SPOT)]
     )
     mocker.patch.multiple(
-        "freqtrade.strategy.interface.IStrategy",
+        "fxtbot.strategy.interface.IStrategy",
         get_exit_signal=MagicMock(return_value=(False, False)),
         get_entry_signal=MagicMock(return_value=(None, None)),
     )
@@ -861,7 +861,7 @@ def test_process_informative_pairs_added(default_conf_usdt, ticker_usdt, mocker)
 
     freqtrade = FreqtradeBot(default_conf_usdt)
     freqtrade.strategy.informative_pairs = inf_pairs
-    # patch_get_signal(freqtrade)
+    # patch_get_signal(fxtbot)
 
     freqtrade.process()
     assert inf_pairs.call_count == 1
@@ -937,7 +937,7 @@ def test_execute_entry(
     default_conf_usdt["exchange"]["name"] = exchange_name
     if margin_mode:
         default_conf_usdt["margin_mode"] = margin_mode
-    mocker.patch("freqtrade.exchange.gate.Gate.validate_ordertypes")
+    mocker.patch("fxtbot.exchange.gate.Gate.validate_ordertypes")
     patch_RPCManager(mocker)
     patch_exchange(mocker, exchange=exchange_name)
     freqtrade = FreqtradeBot(default_conf_usdt)
@@ -961,7 +961,7 @@ def test_execute_entry(
         get_max_leverage=MagicMock(return_value=10),
     )
     mocker.patch.multiple(
-        "freqtrade.exchange.okx.Okx",
+        "fxtbot.exchange.okx.Okx",
         get_max_pair_stake_amount=MagicMock(return_value=500000),
     )
     pair = "ETH/USDT"
@@ -1242,7 +1242,7 @@ def test_enter_positions(
     freqtrade = get_patched_freqtradebot(mocker, default_conf_usdt)
 
     mock_ct = mocker.patch(
-        "freqtrade.freqtradebot.FreqtradeBot.create_trade",
+        "fxtbot.freqtradebot.FreqtradeBot.create_trade",
         MagicMock(return_value=return_value, side_effect=side_effect),
     )
     n = freqtrade.enter_positions()
@@ -1257,7 +1257,7 @@ def test_enter_positions(
 def test_exit_positions(mocker, default_conf_usdt, limit_order, is_short, caplog) -> None:
     freqtrade = get_patched_freqtradebot(mocker, default_conf_usdt)
 
-    mocker.patch("freqtrade.freqtradebot.FreqtradeBot.handle_trade", MagicMock(return_value=True))
+    mocker.patch("fxtbot.freqtradebot.FreqtradeBot.handle_trade", MagicMock(return_value=True))
     mocker.patch(f"{EXMS}.fetch_order", return_value=limit_order[entry_side(is_short)])
     mocker.patch(f"{EXMS}.get_trades_for_order", return_value=[])
 
@@ -1293,7 +1293,7 @@ def test_exit_positions(mocker, default_conf_usdt, limit_order, is_short, caplog
     # Test amount not modified by fee-logic
     assert not log_has_re(r"Applying fee to amount for Trade .*", caplog)
 
-    gra = mocker.patch("freqtrade.freqtradebot.FreqtradeBot.get_real_amount", return_value=0.0)
+    gra = mocker.patch("fxtbot.freqtradebot.FreqtradeBot.get_real_amount", return_value=0.0)
     # test amount modified by fee-logic
     n = freqtrade.exit_positions(trades)
     assert n == 1
@@ -1339,7 +1339,7 @@ def test_exit_positions_exception(mocker, default_conf_usdt, limit_order, caplog
 
     # Test raise of DependencyException exception
     mocker.patch(
-        "freqtrade.freqtradebot.FreqtradeBot.handle_trade", side_effect=DependencyException()
+        "fxtbot.freqtradebot.FreqtradeBot.handle_trade", side_effect=DependencyException()
     )
     caplog.clear()
     n = freqtrade.exit_positions(trades)
@@ -1352,11 +1352,11 @@ def test_update_trade_state(mocker, default_conf_usdt, limit_order, is_short, ca
     freqtrade = get_patched_freqtradebot(mocker, default_conf_usdt)
     order = limit_order[entry_side(is_short)]
 
-    mocker.patch("freqtrade.freqtradebot.FreqtradeBot.handle_trade", MagicMock(return_value=True))
-    mocker.patch("freqtrade.freqtradebot.FreqtradeBot._notify_enter")
+    mocker.patch("fxtbot.freqtradebot.FreqtradeBot.handle_trade", MagicMock(return_value=True))
+    mocker.patch("fxtbot.freqtradebot.FreqtradeBot._notify_enter")
     mocker.patch(f"{EXMS}.fetch_order", return_value=order)
     mocker.patch(f"{EXMS}.get_trades_for_order", return_value=[])
-    mocker.patch("freqtrade.freqtradebot.FreqtradeBot.get_real_amount", return_value=0.0)
+    mocker.patch("fxtbot.freqtradebot.FreqtradeBot.get_real_amount", return_value=0.0)
     order_id = order["id"]
 
     trade = Trade(
@@ -1389,7 +1389,7 @@ def test_update_trade_state(mocker, default_conf_usdt, limit_order, is_short, ca
     assert trade.amount == order["amount"]
     assert freqtrade.strategy.order_filled.call_count == 1
 
-    mocker.patch("freqtrade.freqtradebot.FreqtradeBot.get_real_amount", return_value=0.01)
+    mocker.patch("fxtbot.freqtradebot.FreqtradeBot.get_real_amount", return_value=0.01)
     assert trade.amount == 30.0
     # test amount modified by fee-logic
     freqtrade.update_trade_state(trade, order_id)
@@ -1406,7 +1406,7 @@ def test_update_trade_state(mocker, default_conf_usdt, limit_order, is_short, ca
     limit_buy_order_usdt_new["status"] = "canceled"
 
     freqtrade.strategy.order_filled = MagicMock(return_value=None)
-    mocker.patch("freqtrade.freqtradebot.FreqtradeBot.get_real_amount", side_effect=ValueError)
+    mocker.patch("fxtbot.freqtradebot.FreqtradeBot.get_real_amount", side_effect=ValueError)
     mocker.patch(f"{EXMS}.fetch_order", return_value=limit_buy_order_usdt_new)
     res = freqtrade.update_trade_state(trade, order_id)
     # Cancelled empty
@@ -1432,7 +1432,7 @@ def test_update_trade_state_withorderdict(
     order_id = "oid_123456"
     order["id"] = order_id
     mocker.patch(f"{EXMS}.get_trades_for_order", return_value=trades_for_order)
-    mocker.patch("freqtrade.freqtradebot.FreqtradeBot._notify_enter")
+    mocker.patch("fxtbot.freqtradebot.FreqtradeBot._notify_enter")
     # fetch_order should not be called!!
     mocker.patch(f"{EXMS}.fetch_order", MagicMock(side_effect=ValueError))
     patch_exchange(mocker)
@@ -1477,7 +1477,7 @@ def test_update_trade_state_exception(
     order = limit_order[entry_side(is_short)]
     freqtrade = get_patched_freqtradebot(mocker, default_conf_usdt)
     mocker.patch(f"{EXMS}.fetch_order", return_value=order)
-    mocker.patch("freqtrade.freqtradebot.FreqtradeBot._notify_enter")
+    mocker.patch("fxtbot.freqtradebot.FreqtradeBot._notify_enter")
 
     # TODO: should not be magicmock
     trade = MagicMock()
@@ -1486,7 +1486,7 @@ def test_update_trade_state_exception(
 
     # Test raise of OperationalException exception
     mocker.patch(
-        "freqtrade.freqtradebot.FreqtradeBot.get_real_amount", side_effect=DependencyException()
+        "fxtbot.freqtradebot.FreqtradeBot.get_real_amount", side_effect=DependencyException()
     )
     freqtrade.update_trade_state(trade, open_order_id)
     assert log_has("Could not update trade amount: ", caplog)
@@ -1501,7 +1501,7 @@ def test_update_trade_state_orderexception(mocker, default_conf_usdt, caplog) ->
     open_order_id = "123"
 
     # Test raise of OperationalException exception
-    grm_mock = mocker.patch("freqtrade.freqtradebot.FreqtradeBot.get_real_amount", MagicMock())
+    grm_mock = mocker.patch("fxtbot.freqtradebot.FreqtradeBot.get_real_amount", MagicMock())
     freqtrade.update_trade_state(trade, open_order_id)
     assert grm_mock.call_count == 0
     assert log_has(f"Unable to fetch order {open_order_id}: ", caplog)
@@ -1518,7 +1518,7 @@ def test_update_trade_state_sell(
     # fetch_order should not be called!!
     mocker.patch(f"{EXMS}.fetch_order", MagicMock(side_effect=ValueError))
     wallet_mock = MagicMock()
-    mocker.patch("freqtrade.wallets.Wallets.update", wallet_mock)
+    mocker.patch("fxtbot.wallets.Wallets.update", wallet_mock)
 
     patch_exchange(mocker)
     freqtrade = get_patched_freqtradebot(mocker, default_conf_usdt)
@@ -1815,7 +1815,7 @@ def test_close_trade(
 
 def test_bot_loop_start_called_once(mocker, default_conf_usdt, caplog):
     ftbot = get_patched_freqtradebot(mocker, default_conf_usdt)
-    mocker.patch("freqtrade.freqtradebot.FreqtradeBot.create_trade")
+    mocker.patch("fxtbot.freqtradebot.FreqtradeBot.create_trade")
     patch_get_signal(ftbot)
     ftbot.strategy.bot_loop_start = MagicMock(side_effect=ValueError)
     ftbot.strategy.analyze = MagicMock()
@@ -2037,7 +2037,7 @@ def test_adjust_entry_replace_fail(
         cancel_order_with_result=cancel_order_mock,
         get_fee=fee,
     )
-    mocker.patch("freqtrade.freqtradebot.sleep")
+    mocker.patch("fxtbot.freqtradebot.sleep")
 
     open_trade.is_short = is_short
     Trade.session.add(open_trade)
@@ -2086,9 +2086,9 @@ def test_adjust_entry_replace_fail_create_order(
         cancel_order_with_result=cancel_order_mock,
         get_fee=fee,
     )
-    mocker.patch("freqtrade.freqtradebot.sleep")
+    mocker.patch("fxtbot.freqtradebot.sleep")
     mocker.patch(
-        "freqtrade.freqtradebot.FreqtradeBot.execute_entry", side_effect=DependencyException()
+        "fxtbot.freqtradebot.FreqtradeBot.execute_entry", side_effect=DependencyException()
     )
 
     open_trade.is_short = is_short
@@ -2267,7 +2267,7 @@ def test_manage_open_orders_exit_usercustom(
     cancel_order_mock = MagicMock()
     patch_exchange(mocker)
     mocker.patch(f"{EXMS}.get_min_pair_stake_amount", return_value=0.0)
-    et_mock = mocker.patch("freqtrade.freqtradebot.FreqtradeBot.execute_trade_exit")
+    et_mock = mocker.patch("fxtbot.freqtradebot.FreqtradeBot.execute_trade_exit")
     mocker.patch.multiple(
         EXMS,
         fetch_ticker=ticker_usdt,
@@ -2316,19 +2316,19 @@ def test_manage_open_orders_exit_usercustom(
     # 2nd canceled trade - Fail execute exit
     caplog.clear()
 
-    mocker.patch("freqtrade.persistence.Trade.get_canceled_exit_order_count", return_value=1)
+    mocker.patch("fxtbot.persistence.Trade.get_canceled_exit_order_count", return_value=1)
     mocker.patch(
-        "freqtrade.freqtradebot.FreqtradeBot.execute_trade_exit", side_effect=DependencyException
+        "fxtbot.freqtradebot.FreqtradeBot.execute_trade_exit", side_effect=DependencyException
     )
     freqtrade.manage_open_orders()
     assert log_has_re("Unable to emergency exit .*", caplog)
 
-    et_mock = mocker.patch("freqtrade.freqtradebot.FreqtradeBot.execute_trade_exit")
+    et_mock = mocker.patch("fxtbot.freqtradebot.FreqtradeBot.execute_trade_exit")
     caplog.clear()
     # 2nd canceled trade ...
 
     # If cancelling fails - no emergency exit!
-    with patch("freqtrade.freqtradebot.FreqtradeBot.handle_cancel_exit", return_value=False):
+    with patch("fxtbot.freqtradebot.FreqtradeBot.handle_cancel_exit", return_value=False):
         freqtrade.manage_open_orders()
         assert et_mock.call_count == 0
 
@@ -2480,7 +2480,7 @@ def test_manage_open_orders_partial_fee(
     limit_buy_order_old_partial_canceled["side"] = "sell" if is_short else "buy"
 
     cancel_order_mock = MagicMock(return_value=limit_buy_order_old_partial_canceled)
-    mocker.patch("freqtrade.wallets.Wallets.get_free", MagicMock(return_value=0))
+    mocker.patch("fxtbot.wallets.Wallets.get_free", MagicMock(return_value=0))
     patch_exchange(mocker)
     mocker.patch.multiple(
         EXMS,
@@ -2548,7 +2548,7 @@ def test_manage_open_orders_partial_except(
         get_trades_for_order=MagicMock(return_value=trades_for_order),
     )
     mocker.patch(
-        "freqtrade.freqtradebot.FreqtradeBot.get_real_amount",
+        "fxtbot.freqtradebot.FreqtradeBot.get_real_amount",
         MagicMock(side_effect=DependencyException),
     )
     freqtrade = FreqtradeBot(default_conf_usdt)
@@ -2586,7 +2586,7 @@ def test_manage_open_orders_exception(
     cancel_order_mock = MagicMock()
 
     mocker.patch.multiple(
-        "freqtrade.freqtradebot.FreqtradeBot",
+        "fxtbot.freqtradebot.FreqtradeBot",
         handle_cancel_enter=MagicMock(),
         handle_cancel_exit=MagicMock(),
     )
@@ -2667,7 +2667,7 @@ def test_handle_cancel_enter(mocker, caplog, default_conf_usdt, limit_order, is_
     # Retry ...
     cbo = limit_order[entry_side(is_short)]
 
-    mocker.patch("freqtrade.freqtradebot.sleep")
+    mocker.patch("fxtbot.freqtradebot.sleep")
     cbo["status"] = "open"
     co_mock = mocker.patch(f"{EXMS}.cancel_order_with_result", return_value=cbo)
     fo_mock = mocker.patch(f"{EXMS}.fetch_order", return_value=cbo)
@@ -2692,7 +2692,7 @@ def test_handle_cancel_enter_exchanges(
     cancel_order_mock = mocker.patch(
         f"{EXMS}.cancel_order_with_result", return_value=limit_buy_order_canceled_empty
     )
-    notify_mock = mocker.patch("freqtrade.freqtradebot.FreqtradeBot._notify_enter_cancel")
+    notify_mock = mocker.patch("fxtbot.freqtradebot.FreqtradeBot._notify_enter_cancel")
     freqtrade = FreqtradeBot(default_conf_usdt)
 
     reason = CANCEL_REASON["TIMEOUT"]
@@ -2764,7 +2764,7 @@ def test_handle_cancel_exit_limit(
     mocker.patch(f"{EXMS}.get_rate", return_value=entry_price)
     mocker.patch(f"{EXMS}.get_min_pair_stake_amount", return_value=0.2)
 
-    mocker.patch("freqtrade.freqtradebot.FreqtradeBot.handle_order_fee")
+    mocker.patch("fxtbot.freqtradebot.FreqtradeBot.handle_order_fee")
 
     freqtrade = FreqtradeBot(default_conf_usdt)
 
@@ -2880,7 +2880,7 @@ def test_handle_cancel_exit_cancel_exception(mocker, default_conf_usdt) -> None:
     assert not freqtrade.handle_cancel_exit(trade, order, order_obj, reason)
 
     # mocker.patch(f'{EXMS}.cancel_order_with_result', return_value=order)
-    # assert not freqtrade.handle_cancel_exit(trade, order, reason)
+    # assert not fxtbot.handle_cancel_exit(trade, order, reason)
 
 
 @pytest.mark.parametrize(
@@ -3274,7 +3274,7 @@ def test_execute_trade_exit_insufficient_funds_error(
     default_conf_usdt, ticker_usdt, fee, is_short, ticker_usdt_sell_up, mocker
 ) -> None:
     freqtrade = get_patched_freqtradebot(mocker, default_conf_usdt)
-    mock_insuf = mocker.patch("freqtrade.freqtradebot.FreqtradeBot.handle_insufficient_funds")
+    mock_insuf = mocker.patch("fxtbot.freqtradebot.FreqtradeBot.handle_insufficient_funds")
     mocker.patch.multiple(
         EXMS,
         fetch_ticker=ticker_usdt,
@@ -3421,7 +3421,7 @@ def test_sell_not_enough_balance(
     oobj = Order.parse_from_ccxt_object(limit_order["buy"], limit_order["buy"]["symbol"], "buy")
     trade.update_trade(oobj)
     patch_get_signal(freqtrade, enter_long=False, exit_long=True)
-    mocker.patch("freqtrade.wallets.Wallets.get_free", MagicMock(return_value=trade.amount * 0.985))
+    mocker.patch("fxtbot.wallets.Wallets.get_free", MagicMock(return_value=trade.amount * 0.985))
 
     assert freqtrade.handle_trade(trade) is True
     assert log_has_re(r".*Falling back to wallet-amount.", caplog)
@@ -3434,8 +3434,8 @@ def test__safe_exit_amount(default_conf_usdt, fee, caplog, mocker, amount_wallet
     patch_exchange(mocker)
     amount = 95.33
     amount_wallet = amount_wallet
-    mocker.patch("freqtrade.wallets.Wallets.get_free", MagicMock(return_value=amount_wallet))
-    wallet_update = mocker.patch("freqtrade.wallets.Wallets.update")
+    mocker.patch("fxtbot.wallets.Wallets.get_free", MagicMock(return_value=amount_wallet))
+    wallet_update = mocker.patch("fxtbot.wallets.Wallets.update")
     trade = Trade(
         pair="LTC/ETH",
         amount=amount,
@@ -3817,8 +3817,8 @@ def test_get_real_amount_quote_dust(
     default_conf_usdt, trades_for_order, buy_order_fee, fee, caplog, mocker
 ):
     mocker.patch(f"{EXMS}.get_trades_for_order", return_value=trades_for_order)
-    walletmock = mocker.patch("freqtrade.wallets.Wallets.update")
-    mocker.patch("freqtrade.wallets.Wallets.get_free", return_value=8.1122)
+    walletmock = mocker.patch("fxtbot.wallets.Wallets.update")
+    mocker.patch("fxtbot.wallets.Wallets.get_free", return_value=8.1122)
     amount = sum(x["amount"] for x in trades_for_order)
     trade = Trade(
         pair="LTC/ETH",
@@ -4204,8 +4204,8 @@ def test_get_real_amount_in_point(default_conf_usdt, buy_order_fee, fee, mocker,
 def test_apply_fee_conditional(
     default_conf_usdt, fee, mocker, caplog, amount, fee_abs, wallet, amount_exp
 ):
-    walletmock = mocker.patch("freqtrade.wallets.Wallets.update")
-    mocker.patch("freqtrade.wallets.Wallets.get_free", return_value=wallet)
+    walletmock = mocker.patch("fxtbot.wallets.Wallets.update")
+    mocker.patch("fxtbot.wallets.Wallets.get_free", return_value=wallet)
     trade = Trade(
         pair="LTC/ETH",
         amount=amount,
@@ -4246,8 +4246,8 @@ def test_apply_fee_conditional(
 def test_apply_fee_conditional_multibuy(
     default_conf_usdt, fee, mocker, caplog, amount, fee_abs, wallet, amount_exp
 ):
-    walletmock = mocker.patch("freqtrade.wallets.Wallets.update")
-    mocker.patch("freqtrade.wallets.Wallets.get_free", return_value=wallet)
+    walletmock = mocker.patch("fxtbot.wallets.Wallets.update")
+    mocker.patch("fxtbot.wallets.Wallets.get_free", return_value=wallet)
     trade = Trade(
         pair="LTC/ETH",
         amount=amount,
@@ -4482,7 +4482,7 @@ def test_startup_state(default_conf_usdt, mocker):
 def test_startup_trade_reinit(default_conf_usdt, edge_conf, mocker):
     mocker.patch(f"{EXMS}.exchange_has", MagicMock(return_value=True))
     reinit_mock = MagicMock()
-    mocker.patch("freqtrade.persistence.Trade.stoploss_reinitialization", reinit_mock)
+    mocker.patch("fxtbot.persistence.Trade.stoploss_reinitialization", reinit_mock)
 
     ftbot = get_patched_freqtradebot(mocker, default_conf_usdt)
     ftbot.startup()
@@ -4552,8 +4552,8 @@ def test_cancel_all_open_orders(
             limit_order_open[exit_side(is_short)],
         ],
     )
-    buy_mock = mocker.patch("freqtrade.freqtradebot.FreqtradeBot.handle_cancel_enter")
-    sell_mock = mocker.patch("freqtrade.freqtradebot.FreqtradeBot.handle_cancel_exit")
+    buy_mock = mocker.patch("fxtbot.freqtradebot.FreqtradeBot.handle_cancel_enter")
+    sell_mock = mocker.patch("fxtbot.freqtradebot.FreqtradeBot.handle_cancel_exit")
 
     freqtrade = get_patched_freqtradebot(mocker, default_conf_usdt)
     create_mock_trades(fee, is_short=is_short)
@@ -4613,7 +4613,7 @@ def test_startup_update_open_orders(mocker, default_conf_usdt, fee, caplog, is_s
     assert log_has_re(r"Error updating Order .*", caplog)
 
     mocker.patch(f"{EXMS}.fetch_order", side_effect=InvalidOrderException)
-    hto_mock = mocker.patch("freqtrade.freqtradebot.FreqtradeBot.handle_cancel_order")
+    hto_mock = mocker.patch("fxtbot.freqtradebot.FreqtradeBot.handle_cancel_order")
     # Orders which are no longer found after X days should be assumed as canceled.
     freqtrade.startup_update_open_orders()
     assert log_has_re(r"Order is older than \d days.*", caplog)
@@ -4716,7 +4716,7 @@ def test_update_trades_without_assigned_fees(mocker, default_conf_usdt, fee, is_
 @pytest.mark.parametrize("is_short", [False, True])
 def test_reupdate_enter_order_fees(mocker, default_conf_usdt, fee, caplog, is_short):
     freqtrade = get_patched_freqtradebot(mocker, default_conf_usdt)
-    mock_uts = mocker.patch("freqtrade.freqtradebot.FreqtradeBot.update_trade_state")
+    mock_uts = mocker.patch("fxtbot.freqtradebot.FreqtradeBot.update_trade_state")
 
     mocker.patch(f"{EXMS}.fetch_order_or_stoploss_order", return_value={"status": "open"})
     create_mock_trades(fee, is_short)
@@ -4756,7 +4756,7 @@ def test_reupdate_enter_order_fees(mocker, default_conf_usdt, fee, caplog, is_sh
 def test_handle_insufficient_funds(mocker, default_conf_usdt, fee, is_short, caplog):
     caplog.set_level(logging.DEBUG)
     freqtrade = get_patched_freqtradebot(mocker, default_conf_usdt)
-    mock_uts = mocker.patch("freqtrade.freqtradebot.FreqtradeBot.update_trade_state")
+    mock_uts = mocker.patch("fxtbot.freqtradebot.FreqtradeBot.update_trade_state")
 
     mock_fo = mocker.patch(f"{EXMS}.fetch_order_or_stoploss_order", return_value={"status": "open"})
 
@@ -5160,13 +5160,13 @@ def test_update_funding_fees_schedule(
 
     patch_RPCManager(mocker)
     patch_exchange(mocker)
-    mocker.patch("freqtrade.freqtradebot.FreqtradeBot.update_funding_fees", return_value=True)
+    mocker.patch("fxtbot.freqtradebot.FreqtradeBot.update_funding_fees", return_value=True)
     default_conf["trading_mode"] = trading_mode
     default_conf["margin_mode"] = "isolated"
     freqtrade = get_patched_freqtradebot(mocker, default_conf)
 
     time_machine.move_to(f"{t2} {tzoffset}", tick=False)
-    # Check schedule jobs in debugging with freqtrade._schedule.jobs
+    # Check schedule jobs in debugging with fxtbot._schedule.jobs
     freqtrade._schedule.run_pending()
 
     assert freqtrade.update_funding_fees.call_count == calls
@@ -5935,7 +5935,7 @@ def test_process_open_trade_positions_exception(mocker, default_conf_usdt, fee, 
     freqtrade = get_patched_freqtradebot(mocker, default_conf_usdt)
 
     mocker.patch(
-        "freqtrade.freqtradebot.FreqtradeBot.check_and_call_adjust_trade_position",
+        "fxtbot.freqtradebot.FreqtradeBot.check_and_call_adjust_trade_position",
         side_effect=DependencyException(),
     )
 

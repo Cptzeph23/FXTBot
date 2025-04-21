@@ -7,12 +7,12 @@ from unittest.mock import MagicMock, PropertyMock
 
 import pytest
 
-from freqtrade.commands import Arguments
-from freqtrade.enums import State
-from freqtrade.exceptions import ConfigurationError, FreqtradeException, OperationalException
-from freqtrade.freqtradebot import FreqtradeBot
-from freqtrade.main import main
-from freqtrade.worker import Worker
+from fxtbot.commands import Arguments
+from fxtbot.enums import State
+from fxtbot.exceptions import ConfigurationError, FreqtradeException, OperationalException
+from fxtbot.freqtradebot import FreqtradeBot
+from fxtbot.main import main
+from fxtbot.worker import Worker
 from tests.conftest import (
     log_has,
     log_has_re,
@@ -32,7 +32,7 @@ def test_parse_args_version(capsys) -> None:
         main(["-V"])
     captured = capsys.readouterr()
     assert re.search(r"CCXT Version:\s.*", captured.out, re.MULTILINE)
-    assert re.search(r"Freqtrade Version:\s+freqtrade\s.*", captured.out, re.MULTILINE)
+    assert re.search(r"Freqtrade Version:\s+fxtbot\s.*", captured.out, re.MULTILINE)
 
 
 def test_parse_args_backtesting(mocker) -> None:
@@ -41,7 +41,7 @@ def test_parse_args_backtesting(mocker) -> None:
     further argument parsing is done in test_arguments.py
     """
     mocker.patch.object(Path, "is_file", MagicMock(side_effect=[False, True]))
-    backtesting_mock = mocker.patch("freqtrade.commands.start_backtesting")
+    backtesting_mock = mocker.patch("fxtbot.commands.start_backtesting")
     backtesting_mock.__name__ = PropertyMock("start_backtesting")
     # it's sys.exit(0) at the end of backtesting
     with pytest.raises(SystemExit):
@@ -58,7 +58,7 @@ def test_parse_args_backtesting(mocker) -> None:
 
 def test_main_start_hyperopt(mocker) -> None:
     mocker.patch.object(Path, "is_file", MagicMock(side_effect=[False, True]))
-    hyperopt_mock = mocker.patch("freqtrade.commands.start_hyperopt", MagicMock())
+    hyperopt_mock = mocker.patch("fxtbot.commands.start_hyperopt", MagicMock())
     hyperopt_mock.__name__ = PropertyMock("start_hyperopt")
     # it's sys.exit(0) at the end of hyperopt
     with pytest.raises(SystemExit):
@@ -74,11 +74,11 @@ def test_main_start_hyperopt(mocker) -> None:
 
 def test_main_fatal_exception(mocker, default_conf, caplog) -> None:
     patch_exchange(mocker)
-    mocker.patch("freqtrade.freqtradebot.FreqtradeBot.cleanup", MagicMock())
-    mocker.patch("freqtrade.worker.Worker._worker", MagicMock(side_effect=Exception))
+    mocker.patch("fxtbot.freqtradebot.FreqtradeBot.cleanup", MagicMock())
+    mocker.patch("fxtbot.worker.Worker._worker", MagicMock(side_effect=Exception))
     patched_configuration_load_config_file(mocker, default_conf)
-    mocker.patch("freqtrade.freqtradebot.RPCManager", MagicMock())
-    mocker.patch("freqtrade.freqtradebot.init_db", MagicMock())
+    mocker.patch("fxtbot.freqtradebot.RPCManager", MagicMock())
+    mocker.patch("fxtbot.freqtradebot.init_db", MagicMock())
 
     args = ["trade", "-c", "tests/testdata/testconfigs/main_test_config.json"]
 
@@ -91,12 +91,12 @@ def test_main_fatal_exception(mocker, default_conf, caplog) -> None:
 
 def test_main_keyboard_interrupt(mocker, default_conf, caplog) -> None:
     patch_exchange(mocker)
-    mocker.patch("freqtrade.freqtradebot.FreqtradeBot.cleanup", MagicMock())
-    mocker.patch("freqtrade.worker.Worker._worker", MagicMock(side_effect=KeyboardInterrupt))
+    mocker.patch("fxtbot.freqtradebot.FreqtradeBot.cleanup", MagicMock())
+    mocker.patch("fxtbot.worker.Worker._worker", MagicMock(side_effect=KeyboardInterrupt))
     patched_configuration_load_config_file(mocker, default_conf)
-    mocker.patch("freqtrade.freqtradebot.RPCManager", MagicMock())
-    mocker.patch("freqtrade.wallets.Wallets.update", MagicMock())
-    mocker.patch("freqtrade.freqtradebot.init_db", MagicMock())
+    mocker.patch("fxtbot.freqtradebot.RPCManager", MagicMock())
+    mocker.patch("fxtbot.wallets.Wallets.update", MagicMock())
+    mocker.patch("fxtbot.freqtradebot.init_db", MagicMock())
 
     args = ["trade", "-c", "tests/testdata/testconfigs/main_test_config.json"]
 
@@ -109,14 +109,14 @@ def test_main_keyboard_interrupt(mocker, default_conf, caplog) -> None:
 
 def test_main_operational_exception(mocker, default_conf, caplog) -> None:
     patch_exchange(mocker)
-    mocker.patch("freqtrade.freqtradebot.FreqtradeBot.cleanup", MagicMock())
+    mocker.patch("fxtbot.freqtradebot.FreqtradeBot.cleanup", MagicMock())
     mocker.patch(
-        "freqtrade.worker.Worker._worker", MagicMock(side_effect=FreqtradeException("Oh snap!"))
+        "fxtbot.worker.Worker._worker", MagicMock(side_effect=FreqtradeException("Oh snap!"))
     )
     patched_configuration_load_config_file(mocker, default_conf)
-    mocker.patch("freqtrade.wallets.Wallets.update", MagicMock())
-    mocker.patch("freqtrade.freqtradebot.RPCManager", MagicMock())
-    mocker.patch("freqtrade.freqtradebot.init_db", MagicMock())
+    mocker.patch("fxtbot.wallets.Wallets.update", MagicMock())
+    mocker.patch("fxtbot.freqtradebot.RPCManager", MagicMock())
+    mocker.patch("fxtbot.freqtradebot.init_db", MagicMock())
 
     args = ["trade", "-c", "tests/testdata/testconfigs/main_test_config.json"]
 
@@ -130,7 +130,7 @@ def test_main_operational_exception(mocker, default_conf, caplog) -> None:
 def test_main_operational_exception1(mocker, default_conf, caplog) -> None:
     patch_exchange(mocker)
     mocker.patch(
-        "freqtrade.exchange.list_available_exchanges",
+        "fxtbot.exchange.list_available_exchanges",
         MagicMock(side_effect=ValueError("Oh snap!")),
     )
     patched_configuration_load_config_file(mocker, default_conf)
@@ -144,7 +144,7 @@ def test_main_operational_exception1(mocker, default_conf, caplog) -> None:
     assert log_has("Fatal exception!", caplog)
     assert not log_has_re(r"SIGINT.*", caplog)
     mocker.patch(
-        "freqtrade.exchange.list_available_exchanges",
+        "fxtbot.exchange.list_available_exchanges",
         MagicMock(side_effect=KeyboardInterrupt),
     )
     with pytest.raises(SystemExit):
@@ -156,7 +156,7 @@ def test_main_operational_exception1(mocker, default_conf, caplog) -> None:
 def test_main_ConfigurationError(mocker, default_conf, caplog) -> None:
     patch_exchange(mocker)
     mocker.patch(
-        "freqtrade.exchange.list_available_exchanges",
+        "fxtbot.exchange.list_available_exchanges",
         MagicMock(side_effect=ConfigurationError("Oh snap!")),
     )
     patched_configuration_load_config_file(mocker, default_conf)
@@ -171,7 +171,7 @@ def test_main_ConfigurationError(mocker, default_conf, caplog) -> None:
 
 def test_main_reload_config(mocker, default_conf, caplog) -> None:
     patch_exchange(mocker)
-    mocker.patch("freqtrade.freqtradebot.FreqtradeBot.cleanup", MagicMock())
+    mocker.patch("fxtbot.freqtradebot.FreqtradeBot.cleanup", MagicMock())
     # Simulate Running, reload, running workflow
     worker_mock = MagicMock(
         side_effect=[
@@ -181,13 +181,13 @@ def test_main_reload_config(mocker, default_conf, caplog) -> None:
             OperationalException("Oh snap!"),
         ]
     )
-    mocker.patch("freqtrade.worker.Worker._worker", worker_mock)
+    mocker.patch("fxtbot.worker.Worker._worker", worker_mock)
     patched_configuration_load_config_file(mocker, default_conf)
-    mocker.patch("freqtrade.wallets.Wallets.update", MagicMock())
-    reconfigure_mock = mocker.patch("freqtrade.worker.Worker._reconfigure", MagicMock())
+    mocker.patch("fxtbot.wallets.Wallets.update", MagicMock())
+    reconfigure_mock = mocker.patch("fxtbot.worker.Worker._reconfigure", MagicMock())
 
-    mocker.patch("freqtrade.freqtradebot.RPCManager", MagicMock())
-    mocker.patch("freqtrade.freqtradebot.init_db", MagicMock())
+    mocker.patch("fxtbot.freqtradebot.RPCManager", MagicMock())
+    mocker.patch("fxtbot.freqtradebot.init_db", MagicMock())
 
     args = Arguments(
         ["trade", "-c", "tests/testdata/testconfigs/main_test_config.json"]
@@ -204,14 +204,14 @@ def test_main_reload_config(mocker, default_conf, caplog) -> None:
 
 def test_reconfigure(mocker, default_conf) -> None:
     patch_exchange(mocker)
-    mocker.patch("freqtrade.freqtradebot.FreqtradeBot.cleanup", MagicMock())
+    mocker.patch("fxtbot.freqtradebot.FreqtradeBot.cleanup", MagicMock())
     mocker.patch(
-        "freqtrade.worker.Worker._worker", MagicMock(side_effect=OperationalException("Oh snap!"))
+        "fxtbot.worker.Worker._worker", MagicMock(side_effect=OperationalException("Oh snap!"))
     )
-    mocker.patch("freqtrade.wallets.Wallets.update", MagicMock())
+    mocker.patch("fxtbot.wallets.Wallets.update", MagicMock())
     patched_configuration_load_config_file(mocker, default_conf)
-    mocker.patch("freqtrade.freqtradebot.RPCManager", MagicMock())
-    mocker.patch("freqtrade.freqtradebot.init_db", MagicMock())
+    mocker.patch("fxtbot.freqtradebot.RPCManager", MagicMock())
+    mocker.patch("fxtbot.freqtradebot.init_db", MagicMock())
 
     args = Arguments(
         ["trade", "-c", "tests/testdata/testconfigs/main_test_config.json"]

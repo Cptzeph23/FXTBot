@@ -112,11 +112,11 @@ OS Specific steps are listed first, the common section below is necessary for al
 Freqtrade is an open source crypto-currency trading bot, whose code is hosted on `github.com`
 
 ```bash
-# Download `develop` branch of freqtrade repository
+# Download `develop` branch of fxtbot repository
 git clone https://github.com/freqtrade/freqtrade.git
 
 # Enter downloaded directory
-cd freqtrade
+cd fxtbot
 
 # your choice (1): novice user
 git checkout stable
@@ -149,7 +149,7 @@ Make sure you fulfill the [Requirements](#requirements) and have downloaded the 
 If you are on Debian, Ubuntu or MacOS, freqtrade provides the script to install freqtrade.
 
 ```bash
-# --install, Install freqtrade from scratch
+# --install, Install fxtbot from scratch
 ./setup.sh -i
 ```
 
@@ -235,7 +235,7 @@ rm -rf ./ta-lib*
 You will run freqtrade in separated `virtual environment`
 
 ```bash
-# create virtualenv in directory /freqtrade/.venv
+# create virtualenv in directory /fxtbot/.venv
 python3 -m venv .venv
 
 # run virtualenv
@@ -247,7 +247,7 @@ source .venv/bin/activate
 ```bash
 python3 -m pip install --upgrade pip
 python3 -m pip install -r requirements.txt
-# install freqtrade
+# install fxtbot
 python3 -m pip install -e .
 ```
 
@@ -285,17 +285,17 @@ Answer all questions. After installation, it is mandatory to turn your terminal 
 Download and install freqtrade.
 
 ```bash
-# download freqtrade
+# download fxtbot
 git clone https://github.com/freqtrade/freqtrade.git
 
-# enter downloaded directory 'freqtrade'
-cd freqtrade      
+# enter downloaded directory 'fxtbot'
+cd fxtbot      
 ```
 
 #### Freqtrade install: Conda Environment
 
 ```bash
-conda create --name freqtrade python=3.12
+conda create --name fxtbot python=3.12
 ```
 
 !!! Note "Creating Conda Environment"
@@ -318,7 +318,7 @@ Enter installed environment
 
 ```bash
 # enter conda environment
-conda activate freqtrade
+conda activate fxtbot
 
 # exit conda environment - don't do it now
 conda deactivate
@@ -336,7 +336,7 @@ Patch conda libta-lib (Linux only)
 
 ```bash
 # Ensure that the environment is active!
-conda activate freqtrade
+conda activate fxtbot
 
 cd build_helpers
 bash install_ta-lib.sh ${CONDA_PREFIX} nosudo
@@ -353,8 +353,8 @@ conda env list
 # activate base environment
 conda activate
 
-# activate freqtrade environment
-conda activate freqtrade
+# activate fxtbot environment
+conda activate fxtbot
 
 #deactivate any conda environments
 conda deactivate                              
@@ -387,10 +387,10 @@ You've made it this far, so you have successfully installed freqtrade.
 
 ```bash
 # Step 1 - Initialize user folder
-freqtrade create-userdir --userdir user_data
+fxtbot create-userdir --userdir user_data
 
 # Step 2 - Create a new configuration file
-freqtrade new-config --config user_data/config.json
+fxtbot new-config --config user_data/config.json
 ```
 
 You are ready to run, read [Bot Configuration](configuration.md), remember to start with `dry_run: True` and verify that everything is working.
@@ -400,7 +400,7 @@ To learn how to setup your configuration, please refer to the [Bot Configuration
 ### Start the Bot
 
 ```bash
-freqtrade trade --config user_data/config.json --strategy SampleStrategy
+fxtbot trade --config user_data/config.json --strategy SampleStrategy
 ```
 
 !!! Warning
@@ -416,7 +416,7 @@ If you used (1)`Script` or (2)`Manual` installation, you need to run the bot in 
 
 ```bash
 # if:
-bash: freqtrade: command not found
+bash: fxtbot: command not found
 
 # then activate your virtual environment
 source ./.venv/bin/activate

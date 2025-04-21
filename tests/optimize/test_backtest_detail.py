@@ -4,10 +4,10 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from freqtrade.data.history import get_timerange
-from freqtrade.enums import ExitType, TradingMode
-from freqtrade.optimize.backtesting import Backtesting
-from freqtrade.persistence.trade_model import LocalTrade
+from fxtbot.data.history import get_timerange
+from fxtbot.enums import ExitType, TradingMode
+from fxtbot.optimize.backtesting import Backtesting
+from fxtbot.persistence.trade_model import LocalTrade
 from tests.conftest import EXMS, patch_exchange
 from tests.optimize import (
     BTContainer,

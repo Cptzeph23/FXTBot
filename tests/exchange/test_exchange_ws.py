@@ -7,15 +7,15 @@ from unittest.mock import AsyncMock, MagicMock
 
 from ccxt import NotSupported
 
-from freqtrade.enums import CandleType
-from freqtrade.exchange.exchange_ws import ExchangeWS
+from fxtbot.enums import CandleType
+from fxtbot.exchange.exchange_ws import ExchangeWS
 from ft_client.test_client.test_rest_client import log_has_re
 
 
 def test_exchangews_init(mocker):
     config = MagicMock()
     ccxt_object = MagicMock()
-    mocker.patch("freqtrade.exchange.exchange_ws.ExchangeWS._start_forever", MagicMock())
+    mocker.patch("fxtbot.exchange.exchange_ws.ExchangeWS._start_forever", MagicMock())
 
     exchange_ws = ExchangeWS(config, ccxt_object)
     sleep(0.1)
@@ -36,7 +36,7 @@ def test_exchangews_cleanup_error(mocker, caplog):
     config = MagicMock()
     ccxt_object = MagicMock()
     ccxt_object.close = AsyncMock(side_effect=Exception("Test"))
-    mocker.patch("freqtrade.exchange.exchange_ws.ExchangeWS._start_forever", MagicMock())
+    mocker.patch("fxtbot.exchange.exchange_ws.ExchangeWS._start_forever", MagicMock())
 
     exchange_ws = ExchangeWS(config, ccxt_object)
     patch_eventloop_threading(exchange_ws)
@@ -80,7 +80,7 @@ async def test_exchangews_ohlcv(mocker, time_machine, caplog):
     ccxt_object.close = AsyncMock()
     time_machine.move_to("2024-11-01 01:00:02 +00:00")
 
-    mocker.patch("freqtrade.exchange.exchange_ws.ExchangeWS._start_forever", MagicMock())
+    mocker.patch("fxtbot.exchange.exchange_ws.ExchangeWS._start_forever", MagicMock())
 
     exchange_ws = ExchangeWS(config, ccxt_object)
     patch_eventloop_threading(exchange_ws)
@@ -146,7 +146,7 @@ async def test_exchangews_get_ohlcv(mocker, caplog):
             ],
         }
     }
-    mocker.patch("freqtrade.exchange.exchange_ws.ExchangeWS._start_forever", MagicMock())
+    mocker.patch("fxtbot.exchange.exchange_ws.ExchangeWS._start_forever", MagicMock())
 
     exchange_ws = ExchangeWS(config, ccxt_object)
     exchange_ws.klines_last_refresh = {

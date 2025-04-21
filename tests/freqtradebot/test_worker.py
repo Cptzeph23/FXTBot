@@ -6,9 +6,9 @@ from unittest.mock import MagicMock, PropertyMock
 import pytest
 import time_machine
 
-from freqtrade.data.dataprovider import DataProvider
-from freqtrade.enums import State
-from freqtrade.worker import Worker
+from fxtbot.data.dataprovider import DataProvider
+from fxtbot.enums import State
+from fxtbot.worker import Worker
 from tests.conftest import EXMS, get_patched_worker, log_has, log_has_re
 
 
@@ -24,8 +24,8 @@ def test_worker_state(mocker, default_conf, markets) -> None:
 
 def test_worker_running(mocker, default_conf, caplog) -> None:
     mock_throttle = MagicMock()
-    mocker.patch("freqtrade.worker.Worker._throttle", mock_throttle)
-    mocker.patch("freqtrade.persistence.Trade.stoploss_reinitialization", MagicMock())
+    mocker.patch("fxtbot.worker.Worker._throttle", mock_throttle)
+    mocker.patch("fxtbot.persistence.Trade.stoploss_reinitialization", MagicMock())
 
     worker = get_patched_worker(mocker, default_conf)
 
@@ -41,8 +41,8 @@ def test_worker_running(mocker, default_conf, caplog) -> None:
 
 def test_worker_paused(mocker, default_conf, caplog) -> None:
     mock_throttle = MagicMock()
-    mocker.patch("freqtrade.worker.Worker._throttle", mock_throttle)
-    mocker.patch("freqtrade.persistence.Trade.stoploss_reinitialization", MagicMock())
+    mocker.patch("fxtbot.worker.Worker._throttle", mock_throttle)
+    mocker.patch("fxtbot.persistence.Trade.stoploss_reinitialization", MagicMock())
 
     worker = get_patched_worker(mocker, default_conf)
 
@@ -60,7 +60,7 @@ def test_worker_paused(mocker, default_conf, caplog) -> None:
 
 def test_worker_stopped(mocker, default_conf, caplog) -> None:
     mock_throttle = MagicMock()
-    mocker.patch("freqtrade.worker.Worker._throttle", mock_throttle)
+    mocker.patch("fxtbot.worker.Worker._throttle", mock_throttle)
 
     worker = get_patched_worker(mocker, default_conf)
     worker.freqtrade.state = State.STOPPED
@@ -96,9 +96,9 @@ def test_worker_lifecycle(
     log_fragment,
 ):
     mock_throttle = mocker.MagicMock()
-    mocker.patch("freqtrade.worker.Worker._throttle", mock_throttle)
-    mocker.patch("freqtrade.persistence.Trade.stoploss_reinitialization")
-    startup = mocker.patch("freqtrade.freqtradebot.FreqtradeBot.startup")
+    mocker.patch("fxtbot.worker.Worker._throttle", mock_throttle)
+    mocker.patch("fxtbot.persistence.Trade.stoploss_reinitialization")
+    startup = mocker.patch("fxtbot.freqtradebot.FreqtradeBot.startup")
 
     worker = get_patched_worker(mocker, default_conf)
     worker.freqtrade.state = target_state
@@ -140,7 +140,7 @@ def test_throttle(mocker, default_conf, caplog) -> None:
 def test_throttle_sleep_time(mocker, default_conf, caplog) -> None:
     caplog.set_level(logging.DEBUG)
     worker = get_patched_worker(mocker, default_conf)
-    sleep_mock = mocker.patch("freqtrade.worker.Worker._sleep")
+    sleep_mock = mocker.patch("fxtbot.worker.Worker._sleep")
     with time_machine.travel("2022-09-01 05:00:00 +00:00") as t:
 
         def throttled_func(x=1):
@@ -217,7 +217,7 @@ def test_worker_heartbeat_running(default_conf, mocker, caplog):
     message = r"Bot heartbeat\. PID=.*state='RUNNING'"
 
     mock_throttle = MagicMock()
-    mocker.patch("freqtrade.worker.Worker._throttle", mock_throttle)
+    mocker.patch("fxtbot.worker.Worker._throttle", mock_throttle)
     worker = get_patched_worker(mocker, default_conf)
 
     worker.freqtrade.state = State.RUNNING
@@ -240,7 +240,7 @@ def test_worker_heartbeat_stopped(default_conf, mocker, caplog):
     message = r"Bot heartbeat\. PID=.*state='STOPPED'"
 
     mock_throttle = MagicMock()
-    mocker.patch("freqtrade.worker.Worker._throttle", mock_throttle)
+    mocker.patch("fxtbot.worker.Worker._throttle", mock_throttle)
     worker = get_patched_worker(mocker, default_conf)
 
     worker.freqtrade.state = State.STOPPED

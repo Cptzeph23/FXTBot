@@ -3,11 +3,11 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from freqtrade.enums import ExitType
-from freqtrade.exceptions import OperationalException
-from freqtrade.persistence import PairLocks, Trade
-from freqtrade.persistence.trade_model import Order
-from freqtrade.plugins.protectionmanager import ProtectionManager
+from fxtbot.enums import ExitType
+from fxtbot.exceptions import OperationalException
+from fxtbot.persistence import PairLocks, Trade
+from fxtbot.persistence.trade_model import Order
+from fxtbot.plugins.protectionmanager import ProtectionManager
 from tests.conftest import get_patched_freqtradebot, log_has_re
 
 

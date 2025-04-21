@@ -4,11 +4,11 @@ from unittest.mock import MagicMock
 import pandas as pd
 import pytest
 
-from freqtrade.data.converter import ohlcv_to_dataframe
-from freqtrade.enums import CandleType
-from freqtrade.exceptions import OperationalException
-from freqtrade.plugins.pairlist.PercentChangePairList import PercentChangePairList
-from freqtrade.plugins.pairlistmanager import PairListManager
+from fxtbot.data.converter import ohlcv_to_dataframe
+from fxtbot.enums import CandleType
+from fxtbot.exceptions import OperationalException
+from fxtbot.plugins.pairlist.PercentChangePairList import PercentChangePairList
+from fxtbot.plugins.pairlistmanager import PairListManager
 from tests.conftest import (
     EXMS,
     generate_test_data_raw,

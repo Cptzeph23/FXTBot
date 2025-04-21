@@ -278,13 +278,13 @@ Please refer to the [Data Downloading](data-download.md) section of the document
 ### Precising stoploss range
 
 ```bash
-freqtrade edge --stoplosses=-0.01,-0.1,-0.001 #min,max,step
+fxtbot edge --stoplosses=-0.01,-0.1,-0.001 #min,max,step
 ```
 
 ### Advanced use of timerange
 
 ```bash
-freqtrade edge --timerange=20181110-20181113
+fxtbot edge --timerange=20181110-20181113
 ```
 
 Doing `--timerange=-20190901` will get all available data until September 1st (excluding September 1st 2019).

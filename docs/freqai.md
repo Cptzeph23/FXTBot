@@ -29,7 +29,7 @@ Features include:
 The easiest way to quickly test FreqAI is to run it in dry mode with the following command:
 
 ```bash
-freqtrade trade --config config_examples/config_freqai.example.json --strategy FreqaiExampleStrategy --freqaimodel LightGBMRegressor --strategy-path freqtrade/templates
+fxtbot trade --config config_examples/config_freqai.example.json --strategy FreqaiExampleStrategy --freqaimodel LightGBMRegressor --strategy-path fxtbot/templates
 ```
 
 You will see the boot-up process of automatic data downloading, followed by simultaneous training and trading. 

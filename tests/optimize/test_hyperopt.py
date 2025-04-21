@@ -9,17 +9,17 @@ import pytest
 from filelock import Timeout
 from skopt.space import Integer
 
-from freqtrade.commands.optimize_commands import setup_optimize_configuration, start_hyperopt
-from freqtrade.data.history import load_data
-from freqtrade.enums import ExitType, RunMode
-from freqtrade.exceptions import OperationalException
-from freqtrade.optimize.hyperopt import Hyperopt
-from freqtrade.optimize.hyperopt.hyperopt_auto import HyperOptAuto
-from freqtrade.optimize.hyperopt_tools import HyperoptTools
-from freqtrade.optimize.optimize_reports import generate_strategy_stats
-from freqtrade.optimize.space import SKDecimal
-from freqtrade.strategy import IntParameter
-from freqtrade.util import dt_utc
+from fxtbot.commands.optimize_commands import setup_optimize_configuration, start_hyperopt
+from fxtbot.data.history import load_data
+from fxtbot.enums import ExitType, RunMode
+from fxtbot.exceptions import OperationalException
+from fxtbot.optimize.hyperopt import Hyperopt
+from fxtbot.optimize.hyperopt.hyperopt_auto import HyperOptAuto
+from fxtbot.optimize.hyperopt_tools import HyperoptTools
+from fxtbot.optimize.optimize_reports import generate_strategy_stats
+from fxtbot.optimize.space import SKDecimal
+from fxtbot.strategy import IntParameter
+from fxtbot.util import dt_utc
 from tests.conftest import (
     CURRENT_TEST_STRATEGY,
     EXMS,
@@ -87,7 +87,7 @@ def test_setup_hyperopt_configuration_without_arguments(mocker, default_conf, ca
 
 def test_setup_hyperopt_configuration_with_arguments(mocker, default_conf, caplog) -> None:
     patched_configuration_load_config_file(mocker, default_conf)
-    mocker.patch("freqtrade.configuration.configuration.create_datadir", lambda c, x: x)
+    mocker.patch("fxtbot.configuration.configuration.create_datadir", lambda c, x: x)
 
     args = [
         "hyperopt",
@@ -175,7 +175,7 @@ def test_start_not_installed(mocker, default_conf, import_fails) -> None:
     start_mock = MagicMock()
     patched_configuration_load_config_file(mocker, default_conf)
 
-    mocker.patch("freqtrade.optimize.hyperopt.Hyperopt.start", start_mock)
+    mocker.patch("fxtbot.optimize.hyperopt.Hyperopt.start", start_mock)
     patch_exchange(mocker)
 
     args = [
@@ -198,7 +198,7 @@ def test_start_not_installed(mocker, default_conf, import_fails) -> None:
 def test_start_no_hyperopt_allowed(mocker, hyperopt_conf, caplog) -> None:
     start_mock = MagicMock()
     patched_configuration_load_config_file(mocker, hyperopt_conf)
-    mocker.patch("freqtrade.optimize.hyperopt.Hyperopt.start", start_mock)
+    mocker.patch("fxtbot.optimize.hyperopt.Hyperopt.start", start_mock)
     patch_exchange(mocker)
 
     args = [
@@ -220,9 +220,9 @@ def test_start_no_hyperopt_allowed(mocker, hyperopt_conf, caplog) -> None:
 def test_start_no_data(mocker, hyperopt_conf, tmp_path) -> None:
     hyperopt_conf["user_data_dir"] = tmp_path
     patched_configuration_load_config_file(mocker, hyperopt_conf)
-    mocker.patch("freqtrade.data.history.load_pair_history", MagicMock(return_value=pd.DataFrame))
+    mocker.patch("fxtbot.data.history.load_pair_history", MagicMock(return_value=pd.DataFrame))
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.get_timerange",
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.get_timerange",
         MagicMock(return_value=(datetime(2017, 12, 10), datetime(2017, 12, 13))),
     )
 
@@ -252,7 +252,7 @@ def test_start_no_data(mocker, hyperopt_conf, tmp_path) -> None:
 def test_start_filelock(mocker, hyperopt_conf, caplog) -> None:
     hyperopt_mock = MagicMock(side_effect=Timeout(Hyperopt.get_lock_filename(hyperopt_conf)))
     patched_configuration_load_config_file(mocker, hyperopt_conf)
-    mocker.patch("freqtrade.optimize.hyperopt.Hyperopt.__init__", hyperopt_mock)
+    mocker.patch("fxtbot.optimize.hyperopt.Hyperopt.__init__", hyperopt_mock)
     patch_exchange(mocker)
 
     args = [
@@ -268,7 +268,7 @@ def test_start_filelock(mocker, hyperopt_conf, caplog) -> None:
     ]
     pargs = get_args(args)
     start_hyperopt(pargs)
-    assert log_has("Another running instance of freqtrade Hyperopt detected.", caplog)
+    assert log_has("Another running instance of fxtbot Hyperopt detected.", caplog)
 
 
 def test_log_results_if_loss_improves(hyperopt, capsys) -> None:
@@ -338,26 +338,26 @@ def test_params_no_optimize_details(hyperopt) -> None:
 
 
 def test_start_calls_optimizer(mocker, hyperopt_conf, capsys) -> None:
-    dumper = mocker.patch("freqtrade.optimize.hyperopt.hyperopt_optimizer.dump")
-    dumper2 = mocker.patch("freqtrade.optimize.hyperopt.Hyperopt._save_result")
+    dumper = mocker.patch("fxtbot.optimize.hyperopt.hyperopt_optimizer.dump")
+    dumper2 = mocker.patch("fxtbot.optimize.hyperopt.Hyperopt._save_result")
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.calculate_market_change", return_value=1.5
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.calculate_market_change", return_value=1.5
     )
-    mocker.patch("freqtrade.optimize.hyperopt.hyperopt.file_dump_json")
+    mocker.patch("fxtbot.optimize.hyperopt.hyperopt.file_dump_json")
 
     mocker.patch(
-        "freqtrade.optimize.backtesting.Backtesting.load_bt_data",
+        "fxtbot.optimize.backtesting.Backtesting.load_bt_data",
         MagicMock(return_value=(MagicMock(), None)),
     )
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.get_timerange",
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.get_timerange",
         MagicMock(return_value=(datetime(2017, 12, 10), datetime(2017, 12, 13))),
     )
     # Dummy-reduce points to ensure scikit-learn is forced to generate new values
-    mocker.patch("freqtrade.optimize.hyperopt.hyperopt.INITIAL_POINTS", 2)
+    mocker.patch("fxtbot.optimize.hyperopt.hyperopt.INITIAL_POINTS", 2)
 
     parallel = mocker.patch(
-        "freqtrade.optimize.hyperopt.Hyperopt.run_optimizer_parallel",
+        "fxtbot.optimize.hyperopt.Hyperopt.run_optimizer_parallel",
         MagicMock(
             return_value=[
                 {
@@ -531,18 +531,18 @@ def test_generate_optimizer(mocker, hyperopt_conf) -> None:
     }
 
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.Backtesting.backtest",
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.Backtesting.backtest",
         return_value=backtest_result,
     )
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.get_timerange",
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.get_timerange",
         return_value=(dt_utc(2017, 12, 10), dt_utc(2017, 12, 13)),
     )
     patch_exchange(mocker)
     mocker.patch.object(Path, "open")
-    mocker.patch("freqtrade.configuration.config_validation.validate_config_schema")
+    mocker.patch("fxtbot.configuration.config_validation.validate_config_schema")
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.load", return_value={"XRP/BTC": None}
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.load", return_value={"XRP/BTC": None}
     )
 
     optimizer_param = {
@@ -616,11 +616,11 @@ def test_clean_hyperopt(mocker, hyperopt_conf, caplog):
     patch_exchange(mocker)
 
     mocker.patch(
-        "freqtrade.strategy.hyper.HyperStrategyMixin.load_params_from_file",
+        "fxtbot.strategy.hyper.HyperStrategyMixin.load_params_from_file",
         MagicMock(return_value={}),
     )
-    mocker.patch("freqtrade.optimize.hyperopt.hyperopt.Path.is_file", MagicMock(return_value=True))
-    unlinkmock = mocker.patch("freqtrade.optimize.hyperopt.hyperopt.Path.unlink", MagicMock())
+    mocker.patch("fxtbot.optimize.hyperopt.hyperopt.Path.is_file", MagicMock(return_value=True))
+    unlinkmock = mocker.patch("fxtbot.optimize.hyperopt.hyperopt.Path.unlink", MagicMock())
     h = Hyperopt(hyperopt_conf)
 
     assert unlinkmock.call_count == 2
@@ -628,24 +628,24 @@ def test_clean_hyperopt(mocker, hyperopt_conf, caplog):
 
 
 def test_print_json_spaces_all(mocker, hyperopt_conf, capsys) -> None:
-    dumper = mocker.patch("freqtrade.optimize.hyperopt.hyperopt_optimizer.dump")
-    dumper2 = mocker.patch("freqtrade.optimize.hyperopt.Hyperopt._save_result")
-    mocker.patch("freqtrade.optimize.hyperopt.hyperopt.file_dump_json")
+    dumper = mocker.patch("fxtbot.optimize.hyperopt.hyperopt_optimizer.dump")
+    dumper2 = mocker.patch("fxtbot.optimize.hyperopt.Hyperopt._save_result")
+    mocker.patch("fxtbot.optimize.hyperopt.hyperopt.file_dump_json")
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.calculate_market_change", return_value=1.5
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.calculate_market_change", return_value=1.5
     )
 
     mocker.patch(
-        "freqtrade.optimize.backtesting.Backtesting.load_bt_data",
+        "fxtbot.optimize.backtesting.Backtesting.load_bt_data",
         MagicMock(return_value=(MagicMock(), None)),
     )
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.get_timerange",
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.get_timerange",
         MagicMock(return_value=(datetime(2017, 12, 10), datetime(2017, 12, 13))),
     )
 
     parallel = mocker.patch(
-        "freqtrade.optimize.hyperopt.Hyperopt.run_optimizer_parallel",
+        "fxtbot.optimize.hyperopt.Hyperopt.run_optimizer_parallel",
         MagicMock(
             return_value=[
                 {
@@ -695,23 +695,23 @@ def test_print_json_spaces_all(mocker, hyperopt_conf, capsys) -> None:
 
 
 def test_print_json_spaces_default(mocker, hyperopt_conf, capsys) -> None:
-    dumper = mocker.patch("freqtrade.optimize.hyperopt.hyperopt_optimizer.dump")
-    dumper2 = mocker.patch("freqtrade.optimize.hyperopt.Hyperopt._save_result")
-    mocker.patch("freqtrade.optimize.hyperopt.hyperopt.file_dump_json")
+    dumper = mocker.patch("fxtbot.optimize.hyperopt.hyperopt_optimizer.dump")
+    dumper2 = mocker.patch("fxtbot.optimize.hyperopt.Hyperopt._save_result")
+    mocker.patch("fxtbot.optimize.hyperopt.hyperopt.file_dump_json")
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.calculate_market_change", return_value=1.5
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.calculate_market_change", return_value=1.5
     )
     mocker.patch(
-        "freqtrade.optimize.backtesting.Backtesting.load_bt_data",
+        "fxtbot.optimize.backtesting.Backtesting.load_bt_data",
         MagicMock(return_value=(MagicMock(), None)),
     )
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.get_timerange",
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.get_timerange",
         MagicMock(return_value=(datetime(2017, 12, 10), datetime(2017, 12, 13))),
     )
 
     parallel = mocker.patch(
-        "freqtrade.optimize.hyperopt.Hyperopt.run_optimizer_parallel",
+        "fxtbot.optimize.hyperopt.Hyperopt.run_optimizer_parallel",
         MagicMock(
             return_value=[
                 {
@@ -752,23 +752,23 @@ def test_print_json_spaces_default(mocker, hyperopt_conf, capsys) -> None:
 
 
 def test_print_json_spaces_roi_stoploss(mocker, hyperopt_conf, capsys) -> None:
-    dumper = mocker.patch("freqtrade.optimize.hyperopt.hyperopt_optimizer.dump")
-    dumper2 = mocker.patch("freqtrade.optimize.hyperopt.Hyperopt._save_result")
+    dumper = mocker.patch("fxtbot.optimize.hyperopt.hyperopt_optimizer.dump")
+    dumper2 = mocker.patch("fxtbot.optimize.hyperopt.Hyperopt._save_result")
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.calculate_market_change", return_value=1.5
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.calculate_market_change", return_value=1.5
     )
-    mocker.patch("freqtrade.optimize.hyperopt.hyperopt.file_dump_json")
+    mocker.patch("fxtbot.optimize.hyperopt.hyperopt.file_dump_json")
     mocker.patch(
-        "freqtrade.optimize.backtesting.Backtesting.load_bt_data",
+        "fxtbot.optimize.backtesting.Backtesting.load_bt_data",
         MagicMock(return_value=(MagicMock(), None)),
     )
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.get_timerange",
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.get_timerange",
         MagicMock(return_value=(datetime(2017, 12, 10), datetime(2017, 12, 13))),
     )
 
     parallel = mocker.patch(
-        "freqtrade.optimize.hyperopt.Hyperopt.run_optimizer_parallel",
+        "fxtbot.optimize.hyperopt.Hyperopt.run_optimizer_parallel",
         MagicMock(
             return_value=[
                 {
@@ -807,23 +807,23 @@ def test_print_json_spaces_roi_stoploss(mocker, hyperopt_conf, capsys) -> None:
 
 
 def test_simplified_interface_roi_stoploss(mocker, hyperopt_conf, capsys) -> None:
-    dumper = mocker.patch("freqtrade.optimize.hyperopt.hyperopt_optimizer.dump")
-    dumper2 = mocker.patch("freqtrade.optimize.hyperopt.Hyperopt._save_result")
+    dumper = mocker.patch("fxtbot.optimize.hyperopt.hyperopt_optimizer.dump")
+    dumper2 = mocker.patch("fxtbot.optimize.hyperopt.Hyperopt._save_result")
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.calculate_market_change", return_value=1.5
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.calculate_market_change", return_value=1.5
     )
-    mocker.patch("freqtrade.optimize.hyperopt.hyperopt.file_dump_json")
+    mocker.patch("fxtbot.optimize.hyperopt.hyperopt.file_dump_json")
     mocker.patch(
-        "freqtrade.optimize.backtesting.Backtesting.load_bt_data",
+        "fxtbot.optimize.backtesting.Backtesting.load_bt_data",
         MagicMock(return_value=(MagicMock(), None)),
     )
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.get_timerange",
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.get_timerange",
         MagicMock(return_value=(datetime(2017, 12, 10), datetime(2017, 12, 13))),
     )
 
     parallel = mocker.patch(
-        "freqtrade.optimize.hyperopt.Hyperopt.run_optimizer_parallel",
+        "fxtbot.optimize.hyperopt.Hyperopt.run_optimizer_parallel",
         MagicMock(
             return_value=[
                 {
@@ -861,14 +861,14 @@ def test_simplified_interface_roi_stoploss(mocker, hyperopt_conf, capsys) -> Non
 
 
 def test_simplified_interface_all_failed(mocker, hyperopt_conf, caplog) -> None:
-    mocker.patch("freqtrade.optimize.hyperopt.hyperopt_optimizer.dump", MagicMock())
-    mocker.patch("freqtrade.optimize.hyperopt.hyperopt.file_dump_json")
+    mocker.patch("fxtbot.optimize.hyperopt.hyperopt_optimizer.dump", MagicMock())
+    mocker.patch("fxtbot.optimize.hyperopt.hyperopt.file_dump_json")
     mocker.patch(
-        "freqtrade.optimize.backtesting.Backtesting.load_bt_data",
+        "fxtbot.optimize.backtesting.Backtesting.load_bt_data",
         MagicMock(return_value=(MagicMock(), None)),
     )
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.get_timerange",
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.get_timerange",
         MagicMock(return_value=(datetime(2017, 12, 10), datetime(2017, 12, 13))),
     )
 
@@ -881,7 +881,7 @@ def test_simplified_interface_all_failed(mocker, hyperopt_conf, caplog) -> None:
     )
 
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_auto.HyperOptAuto._generate_indicator_space",
+        "fxtbot.optimize.hyperopt.hyperopt_auto.HyperOptAuto._generate_indicator_space",
         return_value=[],
     )
 
@@ -900,23 +900,23 @@ def test_simplified_interface_all_failed(mocker, hyperopt_conf, caplog) -> None:
 
 
 def test_simplified_interface_buy(mocker, hyperopt_conf, capsys) -> None:
-    dumper = mocker.patch("freqtrade.optimize.hyperopt.hyperopt_optimizer.dump")
-    dumper2 = mocker.patch("freqtrade.optimize.hyperopt.Hyperopt._save_result")
+    dumper = mocker.patch("fxtbot.optimize.hyperopt.hyperopt_optimizer.dump")
+    dumper2 = mocker.patch("fxtbot.optimize.hyperopt.Hyperopt._save_result")
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.calculate_market_change", return_value=1.5
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.calculate_market_change", return_value=1.5
     )
-    mocker.patch("freqtrade.optimize.hyperopt.hyperopt.file_dump_json")
+    mocker.patch("fxtbot.optimize.hyperopt.hyperopt.file_dump_json")
     mocker.patch(
-        "freqtrade.optimize.backtesting.Backtesting.load_bt_data",
+        "fxtbot.optimize.backtesting.Backtesting.load_bt_data",
         MagicMock(return_value=(MagicMock(), None)),
     )
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.get_timerange",
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.get_timerange",
         MagicMock(return_value=(datetime(2017, 12, 10), datetime(2017, 12, 13))),
     )
 
     parallel = mocker.patch(
-        "freqtrade.optimize.hyperopt.Hyperopt.run_optimizer_parallel",
+        "fxtbot.optimize.hyperopt.Hyperopt.run_optimizer_parallel",
         MagicMock(
             return_value=[
                 {
@@ -954,23 +954,23 @@ def test_simplified_interface_buy(mocker, hyperopt_conf, capsys) -> None:
 
 
 def test_simplified_interface_sell(mocker, hyperopt_conf, capsys) -> None:
-    dumper = mocker.patch("freqtrade.optimize.hyperopt.hyperopt_optimizer.dump")
-    dumper2 = mocker.patch("freqtrade.optimize.hyperopt.Hyperopt._save_result")
+    dumper = mocker.patch("fxtbot.optimize.hyperopt.hyperopt_optimizer.dump")
+    dumper2 = mocker.patch("fxtbot.optimize.hyperopt.Hyperopt._save_result")
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.calculate_market_change", return_value=1.5
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.calculate_market_change", return_value=1.5
     )
-    mocker.patch("freqtrade.optimize.hyperopt.hyperopt.file_dump_json")
+    mocker.patch("fxtbot.optimize.hyperopt.hyperopt.file_dump_json")
     mocker.patch(
-        "freqtrade.optimize.backtesting.Backtesting.load_bt_data",
+        "fxtbot.optimize.backtesting.Backtesting.load_bt_data",
         MagicMock(return_value=(MagicMock(), None)),
     )
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.get_timerange",
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.get_timerange",
         MagicMock(return_value=(datetime(2017, 12, 10), datetime(2017, 12, 13))),
     )
 
     parallel = mocker.patch(
-        "freqtrade.optimize.hyperopt.Hyperopt.run_optimizer_parallel",
+        "fxtbot.optimize.hyperopt.Hyperopt.run_optimizer_parallel",
         MagicMock(
             return_value=[
                 {
@@ -1020,18 +1020,18 @@ def test_simplified_interface_sell(mocker, hyperopt_conf, capsys) -> None:
     ],
 )
 def test_simplified_interface_failed(mocker, hyperopt_conf, space) -> None:
-    mocker.patch("freqtrade.optimize.hyperopt.hyperopt_optimizer.dump", MagicMock())
-    mocker.patch("freqtrade.optimize.hyperopt.hyperopt.file_dump_json")
+    mocker.patch("fxtbot.optimize.hyperopt.hyperopt_optimizer.dump", MagicMock())
+    mocker.patch("fxtbot.optimize.hyperopt.hyperopt.file_dump_json")
     mocker.patch(
-        "freqtrade.optimize.backtesting.Backtesting.load_bt_data",
+        "fxtbot.optimize.backtesting.Backtesting.load_bt_data",
         MagicMock(return_value=(MagicMock(), None)),
     )
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.get_timerange",
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.get_timerange",
         MagicMock(return_value=(datetime(2017, 12, 10), datetime(2017, 12, 13))),
     )
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_auto.HyperOptAuto._generate_indicator_space",
+        "fxtbot.optimize.hyperopt.hyperopt_auto.HyperOptAuto._generate_indicator_space",
         return_value=[],
     )
 
@@ -1051,7 +1051,7 @@ def test_in_strategy_auto_hyperopt(mocker, hyperopt_conf, tmp_path, fee) -> None
     patch_exchange(mocker)
     mocker.patch(f"{EXMS}.get_fee", fee)
     # Dummy-reduce points to ensure scikit-learn is forced to generate new values
-    mocker.patch("freqtrade.optimize.hyperopt.hyperopt.INITIAL_POINTS", 2)
+    mocker.patch("fxtbot.optimize.hyperopt.hyperopt.INITIAL_POINTS", 2)
     (tmp_path / "hyperopt_results").mkdir(parents=True)
     # No hyperopt needed
     hyperopt_conf.update(
@@ -1100,7 +1100,7 @@ def test_in_strategy_auto_hyperopt_with_parallel(mocker, hyperopt_conf, tmp_path
     mocker.patch(f"{EXMS}.markets", PropertyMock(return_value=get_markets()))
     (tmp_path / "hyperopt_results").mkdir(parents=True)
     # Dummy-reduce points to ensure scikit-learn is forced to generate new values
-    mocker.patch("freqtrade.optimize.hyperopt.hyperopt.INITIAL_POINTS", 2)
+    mocker.patch("fxtbot.optimize.hyperopt.hyperopt.INITIAL_POINTS", 2)
     # No hyperopt needed
     hyperopt_conf.update(
         {
@@ -1154,7 +1154,7 @@ def test_in_strategy_auto_hyperopt_per_epoch(mocker, hyperopt_conf, tmp_path, fe
         }
     )
     go = mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.HyperOptimizer.generate_optimizer",
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.HyperOptimizer.generate_optimizer",
         return_value={
             "loss": 0.05,
             "results_explanation": "foo result",
@@ -1218,7 +1218,7 @@ def test_stake_amount_unlimited_max_open_trades(mocker, hyperopt_conf, tmp_path,
     )
     hyperopt = Hyperopt(hyperopt_conf)
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.HyperOptimizer._get_params_dict",
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.HyperOptimizer._get_params_dict",
         return_value={"max_open_trades": -1},
     )
 
@@ -1247,7 +1247,7 @@ def test_max_open_trades_dump(mocker, hyperopt_conf, tmp_path, fee, capsys) -> N
     )
     hyperopt = Hyperopt(hyperopt_conf)
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.HyperOptimizer._get_params_dict",
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.HyperOptimizer._get_params_dict",
         return_value={"max_open_trades": -1},
     )
 
@@ -1266,7 +1266,7 @@ def test_max_open_trades_dump(mocker, hyperopt_conf, tmp_path, fee, capsys) -> N
 
     hyperopt = Hyperopt(hyperopt_conf)
     mocker.patch(
-        "freqtrade.optimize.hyperopt.hyperopt_optimizer.HyperOptimizer._get_params_dict",
+        "fxtbot.optimize.hyperopt.hyperopt_optimizer.HyperOptimizer._get_params_dict",
         return_value={"max_open_trades": -1},
     )
 

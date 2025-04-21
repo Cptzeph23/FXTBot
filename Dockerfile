@@ -9,12 +9,12 @@ ENV PATH=/home/ftuser/.local/bin:$PATH
 ENV FT_APP_ENV="docker"
 
 # Prepare environment
-RUN mkdir /freqtrade \
+RUN mkdir /fxtbot \
   && apt-get update \
   && apt-get -y install sudo libatlas3-base curl sqlite3 libgomp1 \
   && apt-get clean \
   && useradd -u 1000 -G sudo -U -m -s /bin/bash ftuser \
-  && chown ftuser:ftuser /freqtrade \
+  && chown ftuser:ftuser /fxtbot \
   # Allow sudoers
   && echo "ftuser ALL=(ALL) NOPASSWD: /bin/chown" >> /etc/sudoers
 
@@ -50,8 +50,8 @@ USER ftuser
 COPY --chown=ftuser:ftuser . /freqtrade/
 
 RUN pip install -e . --user --no-cache-dir --no-build-isolation \
-  && mkdir /freqtrade/user_data/ \
-  && freqtrade install-ui
+  && mkdir /fxtbot/user_data/ \
+  && fxtbot install-ui
 
 ENTRYPOINT ["freqtrade"]
 # Default to trade mode

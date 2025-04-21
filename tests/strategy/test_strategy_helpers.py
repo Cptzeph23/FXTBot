@@ -2,10 +2,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from freqtrade.data.dataprovider import DataProvider
-from freqtrade.enums import CandleType
-from freqtrade.resolvers.strategy_resolver import StrategyResolver
-from freqtrade.strategy import merge_informative_pair, stoploss_from_absolute, stoploss_from_open
+from fxtbot.data.dataprovider import DataProvider
+from fxtbot.enums import CandleType
+from fxtbot.resolvers.strategy_resolver import StrategyResolver
+from fxtbot.strategy import merge_informative_pair, stoploss_from_absolute, stoploss_from_open
 from tests.conftest import generate_test_data, get_patched_exchange
 
 
@@ -384,7 +384,7 @@ def test_informative_decorator(mocker, default_conf_usdt, trading_mode):
         ].copy()
 
     mocker.patch(
-        "freqtrade.data.dataprovider.DataProvider.historic_ohlcv", side_effect=test_historic_ohlcv
+        "fxtbot.data.dataprovider.DataProvider.historic_ohlcv", side_effect=test_historic_ohlcv
     )
 
     analyzed = strategy.advise_all_indicators(

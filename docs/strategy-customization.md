@@ -22,7 +22,7 @@ This document intends to help you convert your ideas into a working strategy.
 To get started, you can use the command:
 
 ```bash
-freqtrade new-strategy --strategy AwesomeStrategy
+fxtbot new-strategy --strategy AwesomeStrategy
 ```
 
 This will create a new strategy called `AwesomeStrategy` from a template, which will be located using the filename `user_data/strategies/AwesomeStrategy.py`.
@@ -66,7 +66,7 @@ You may see older strategies set to interface version 2, and these will need to 
 Starting the bot in dry or live mode is accomplished using the `trade` command:
 
 ```bash
-freqtrade trade --strategy AwesomeStrategy
+fxtbot trade --strategy AwesomeStrategy
 ```
 
 ### Bot modes
@@ -513,7 +513,7 @@ By default, freqtrade will attempt to load strategies from all `.py` files withi
 Assuming your strategy is called `AwesomeStrategy`, stored in the file `user_data/strategies/AwesomeStrategy.py`, then you can start freqtrade in dry (or live, depending on your configuration) mode with:
 
 ```bash
-freqtrade trade --strategy AwesomeStrategy
+fxtbot trade --strategy AwesomeStrategy
 ```
 
 Note that we're using the class name, not the file name.
@@ -923,8 +923,9 @@ Notifications will only be sent in trading modes (Live/Dry-run) - so this method
 ### Complete DataProvider sample
 
 ```python
-from freqtrade.strategy import IStrategy, merge_informative_pair
+from fxtbot.strategy import IStrategy, merge_informative_pair
 from pandas import DataFrame
+
 
 class SampleStrategy(IStrategy):
     # strategy init stuff...
@@ -934,7 +935,6 @@ class SampleStrategy(IStrategy):
     # more strategy init stuff..
 
     def informative_pairs(self):
-
         # get access to all pairs available in whitelist.
         pairs = self.dp.current_whitelist()
         # Assign tf to each pair so they can be downloaded and cached for strategy.
@@ -942,7 +942,7 @@ class SampleStrategy(IStrategy):
         # Optionally Add additional "static" pairs
         informative_pairs += [("ETH/USDT", "5m"),
                               ("BTC/TUSD", "15m"),
-                            ]
+                              ]
         return informative_pairs
 
     def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
@@ -972,12 +972,11 @@ class SampleStrategy(IStrategy):
         return dataframe
 
     def populate_entry_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
-
         dataframe.loc[
             (
-                (qtpylib.crossed_above(dataframe['rsi'], 30)) &  # Signal: RSI crosses above 30
-                (dataframe['rsi_1d'] < 30) &                     # Ensure daily RSI is < 30
-                (dataframe['volume'] > 0)                        # Ensure this candle had volume (important for backtesting)
+                    (qtpylib.crossed_above(dataframe['rsi'], 30)) &  # Signal: RSI crosses above 30
+                    (dataframe['rsi_1d'] < 30) &  # Ensure daily RSI is < 30
+                    (dataframe['volume'] > 0)  # Ensure this candle had volume (important for backtesting)
             ),
             ['enter_long', 'enter_tag']] = (1, 'rsi_cross')
 
@@ -1018,7 +1017,7 @@ A history of trades can be retrieved in the strategy by querying the database.
 At the top of the file, import the required object:
 
 ```python
-from freqtrade.persistence import Trade
+from fxtbot.persistence import Trade
 ```
 
 The following example queries trades from today for the current pair (`metadata['pair']`). Other filters can easily be added.

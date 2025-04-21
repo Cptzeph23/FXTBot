@@ -19,10 +19,10 @@ from sqlalchemy import select
 from telegram import Chat, Message, ReplyKeyboardMarkup, Update, User
 from telegram.error import BadRequest, NetworkError, TelegramError
 
-from freqtrade import __version__
-from freqtrade.constants import CANCEL_REASON
-from freqtrade.edge import PairInfo
-from freqtrade.enums import (
+from fxtbot import __version__
+from fxtbot.constants import CANCEL_REASON
+from fxtbot.edge import PairInfo
+from fxtbot.enums import (
     ExitType,
     MarketDirection,
     RPCMessageType,
@@ -30,15 +30,15 @@ from freqtrade.enums import (
     SignalDirection,
     State,
 )
-from freqtrade.exceptions import OperationalException
-from freqtrade.freqtradebot import FreqtradeBot
-from freqtrade.loggers import setup_logging
-from freqtrade.persistence import PairLocks, Trade
-from freqtrade.persistence.models import Order
-from freqtrade.rpc import RPC
-from freqtrade.rpc.rpc import RPCException
-from freqtrade.rpc.telegram import Telegram, authorized_only
-from freqtrade.util.datetime_helpers import dt_now
+from fxtbot.exceptions import OperationalException
+from fxtbot.freqtradebot import FreqtradeBot
+from fxtbot.loggers import setup_logging
+from fxtbot.persistence import PairLocks, Trade
+from fxtbot.persistence.models import Order
+from fxtbot.rpc import RPC
+from fxtbot.rpc.rpc import RPCException
+from fxtbot.rpc.telegram import Telegram, authorized_only
+from fxtbot.util.datetime_helpers import dt_now
 from tests.conftest import (
     CURRENT_TEST_STRATEGY,
     EXMS,
@@ -55,7 +55,7 @@ from tests.conftest import (
 
 @pytest.fixture(autouse=True)
 def mock_exchange_loop(mocker):
-    mocker.patch("freqtrade.exchange.exchange.Exchange._init_async_loop")
+    mocker.patch("fxtbot.exchange.exchange.Exchange._init_async_loop")
 
 
 @pytest.fixture
@@ -124,7 +124,7 @@ def get_telegram_testobject(mocker, default_conf, mock=True, ftbot=None):
     msg_mock = AsyncMock()
     if mock:
         mocker.patch.multiple(
-            "freqtrade.rpc.telegram.Telegram",
+            "fxtbot.rpc.telegram.Telegram",
             _init=MagicMock(),
             _send_msg=msg_mock,
             _start_thread=MagicMock(),
@@ -140,7 +140,7 @@ def get_telegram_testobject(mocker, default_conf, mock=True, ftbot=None):
 
 
 def test_telegram__init__(default_conf, mocker) -> None:
-    mocker.patch("freqtrade.rpc.telegram.Telegram._init", MagicMock())
+    mocker.patch("fxtbot.rpc.telegram.Telegram._init", MagicMock())
 
     telegram, _, _ = get_telegram_testobject(mocker, default_conf)
     assert telegram._config == default_conf
@@ -148,9 +148,9 @@ def test_telegram__init__(default_conf, mocker) -> None:
 
 def test_telegram_init(default_conf, mocker, caplog) -> None:
     app_mock = MagicMock()
-    mocker.patch("freqtrade.rpc.telegram.Telegram._start_thread", MagicMock())
-    mocker.patch("freqtrade.rpc.telegram.Telegram._init_telegram_app", return_value=app_mock)
-    mocker.patch("freqtrade.rpc.telegram.Telegram._startup_telegram", AsyncMock())
+    mocker.patch("fxtbot.rpc.telegram.Telegram._start_thread", MagicMock())
+    mocker.patch("fxtbot.rpc.telegram.Telegram._init_telegram_app", return_value=app_mock)
+    mocker.patch("fxtbot.rpc.telegram.Telegram._startup_telegram", AsyncMock())
 
     telegram, _, _ = get_telegram_testobject(mocker, default_conf, mock=False)
     telegram._init()
@@ -184,7 +184,7 @@ async def test_telegram_startup(default_conf, mocker) -> None:
     app_mock.start = AsyncMock()
     app_mock.updater.start_polling = AsyncMock()
     app_mock.updater.running = False
-    sleep_mock = mocker.patch("freqtrade.rpc.telegram.asyncio.sleep", AsyncMock())
+    sleep_mock = mocker.patch("fxtbot.rpc.telegram.asyncio.sleep", AsyncMock())
 
     telegram, _, _ = get_telegram_testobject(mocker, default_conf)
     telegram._app = app_mock
@@ -206,7 +206,7 @@ async def test_telegram_cleanup(
     updater_mock = MagicMock()
     updater_mock.stop = AsyncMock()
     app_mock.updater = updater_mock
-    # mocker.patch('freqtrade.rpc.telegram.Application', app_mock)
+    # mocker.patch('fxtbot.rpc.telegram.Application', app_mock)
 
     telegram, _, _ = get_telegram_testobject(mocker, default_conf)
     telegram._app = app_mock
@@ -315,10 +315,10 @@ async def test_telegram_status(default_conf, update, mocker) -> None:
     default_conf["telegram"]["enabled"] = False
 
     status_table = MagicMock()
-    mocker.patch("freqtrade.rpc.telegram.Telegram._status_table", status_table)
+    mocker.patch("fxtbot.rpc.telegram.Telegram._status_table", status_table)
 
     mocker.patch.multiple(
-        "freqtrade.rpc.rpc.RPC",
+        "fxtbot.rpc.rpc.RPC",
         _rpc_trade_status=MagicMock(
             return_value=[
                 {
@@ -453,7 +453,7 @@ async def test_order_handle(default_conf, update, ticker, fee, mocker) -> None:
     )
     status_table = MagicMock()
     mocker.patch.multiple(
-        "freqtrade.rpc.telegram.Telegram",
+        "fxtbot.rpc.telegram.Telegram",
         _status_table=status_table,
     )
 
@@ -467,7 +467,7 @@ async def test_order_handle(default_conf, update, ticker, fee, mocker) -> None:
     # Create some test data
     freqtradebot.enter_positions()
 
-    mocker.patch("freqtrade.rpc.telegram.MAX_MESSAGE_LENGTH", 500)
+    mocker.patch("fxtbot.rpc.telegram.MAX_MESSAGE_LENGTH", 500)
 
     msg_mock.reset_mock()
     context = MagicMock()
@@ -481,7 +481,7 @@ async def test_order_handle(default_conf, update, ticker, fee, mocker) -> None:
     assert "Order List for Trade #*`2`" in msg1
 
     msg_mock.reset_mock()
-    mocker.patch("freqtrade.rpc.telegram.MAX_MESSAGE_LENGTH", 50)
+    mocker.patch("fxtbot.rpc.telegram.MAX_MESSAGE_LENGTH", 50)
     context = MagicMock()
     context.args = ["2"]
     await telegram._order(update=update, context=context)
@@ -553,7 +553,7 @@ async def test_status_handle(default_conf, update, ticker, fee, mocker) -> None:
     )
     status_table = MagicMock()
     mocker.patch.multiple(
-        "freqtrade.rpc.telegram.Telegram",
+        "fxtbot.rpc.telegram.Telegram",
         _status_table=status_table,
     )
 
@@ -604,7 +604,7 @@ async def test_status_handle(default_conf, update, ticker, fee, mocker) -> None:
     assert msg_mock.call_count == 2
     assert "LTC/BTC" in msg_mock.call_args_list[0][0][0]
 
-    mocker.patch("freqtrade.rpc.telegram.MAX_MESSAGE_LENGTH", 500)
+    mocker.patch("fxtbot.rpc.telegram.MAX_MESSAGE_LENGTH", 500)
 
     msg_mock.reset_mock()
     context = MagicMock()
@@ -661,7 +661,7 @@ async def test_status_table_handle(default_conf, update, ticker, fee, mocker) ->
 
 
 async def test_daily_handle(default_conf_usdt, update, ticker, fee, mocker, time_machine) -> None:
-    mocker.patch("freqtrade.rpc.rpc.CryptoToFiatConverter._find_price", return_value=1.1)
+    mocker.patch("fxtbot.rpc.rpc.CryptoToFiatConverter._find_price", return_value=1.1)
     mocker.patch.multiple(
         EXMS,
         fetch_ticker=ticker,
@@ -744,7 +744,7 @@ async def test_daily_wrong_input(default_conf, update, ticker, mocker) -> None:
 
 async def test_weekly_handle(default_conf_usdt, update, ticker, fee, mocker, time_machine) -> None:
     default_conf_usdt["max_open_trades"] = 1
-    mocker.patch("freqtrade.rpc.rpc.CryptoToFiatConverter._find_price", return_value=1.1)
+    mocker.patch("fxtbot.rpc.rpc.CryptoToFiatConverter._find_price", return_value=1.1)
     mocker.patch.multiple(
         EXMS,
         fetch_ticker=ticker,
@@ -815,7 +815,7 @@ async def test_weekly_handle(default_conf_usdt, update, ticker, fee, mocker, tim
 
 async def test_monthly_handle(default_conf_usdt, update, ticker, fee, mocker, time_machine) -> None:
     default_conf_usdt["max_open_trades"] = 1
-    mocker.patch("freqtrade.rpc.rpc.CryptoToFiatConverter._find_price", return_value=1.1)
+    mocker.patch("fxtbot.rpc.rpc.CryptoToFiatConverter._find_price", return_value=1.1)
     mocker.patch.multiple(
         EXMS,
         fetch_ticker=ticker,
@@ -897,7 +897,7 @@ async def test_monthly_handle(default_conf_usdt, update, ticker, fee, mocker, ti
 async def test_telegram_profit_handle(
     default_conf_usdt, update, ticker_usdt, ticker_sell_up, fee, limit_sell_order_usdt, mocker
 ) -> None:
-    mocker.patch("freqtrade.rpc.rpc.CryptoToFiatConverter._find_price", return_value=1.1)
+    mocker.patch("fxtbot.rpc.rpc.CryptoToFiatConverter._find_price", return_value=1.1)
     mocker.patch.multiple(
         EXMS,
         fetch_ticker=ticker_usdt,
@@ -923,7 +923,7 @@ async def test_telegram_profit_handle(
     assert msg_mock.call_count == 1
     assert "No closed trade" in msg_mock.call_args_list[-1][0][0]
     assert "*ROI:* All trades" in msg_mock.call_args_list[-1][0][0]
-    mocker.patch("freqtrade.wallets.Wallets.get_starting_balance", return_value=1000)
+    mocker.patch("fxtbot.wallets.Wallets.get_starting_balance", return_value=1000)
     assert (
         "∙ `0.298 USDT (0.50%) (0.03 \N{GREEK CAPITAL LETTER SIGMA}%)`"
         in msg_mock.call_args_list[-1][0][0]
@@ -970,7 +970,7 @@ async def test_telegram_profit_handle(
 
 @pytest.mark.parametrize("is_short", [True, False])
 async def test_telegram_stats(default_conf, update, ticker, fee, mocker, is_short) -> None:
-    mocker.patch("freqtrade.rpc.rpc.CryptoToFiatConverter._find_price", return_value=15000.0)
+    mocker.patch("fxtbot.rpc.rpc.CryptoToFiatConverter._find_price", return_value=15000.0)
     mocker.patch.multiple(
         EXMS,
         fetch_ticker=ticker,
@@ -1154,7 +1154,7 @@ async def test_balance_handle_too_large_response(default_conf, update, mocker) -
             }
         )
     mocker.patch(
-        "freqtrade.rpc.rpc.RPC._rpc_balance",
+        "fxtbot.rpc.rpc.RPC._rpc_balance",
         return_value={
             "currencies": balances,
             "total": 100.0,
@@ -1249,9 +1249,9 @@ async def test_reload_config_handle(default_conf, update, mocker) -> None:
 async def test_telegram_forceexit_handle(
     default_conf, update, ticker, fee, ticker_sell_up, mocker
 ) -> None:
-    mocker.patch("freqtrade.rpc.rpc.CryptoToFiatConverter._find_price", return_value=15000.0)
-    msg_mock = mocker.patch("freqtrade.rpc.telegram.Telegram.send_msg", MagicMock())
-    mocker.patch("freqtrade.rpc.telegram.Telegram._init", MagicMock())
+    mocker.patch("fxtbot.rpc.rpc.CryptoToFiatConverter._find_price", return_value=15000.0)
+    msg_mock = mocker.patch("fxtbot.rpc.telegram.Telegram.send_msg", MagicMock())
+    mocker.patch("fxtbot.rpc.telegram.Telegram._init", MagicMock())
     patch_exchange(mocker)
     patch_whitelist(mocker, default_conf)
     mocker.patch.multiple(
@@ -1320,10 +1320,10 @@ async def test_telegram_force_exit_down_handle(
     default_conf, update, ticker, fee, ticker_sell_down, mocker
 ) -> None:
     mocker.patch(
-        "freqtrade.rpc.fiat_convert.CryptoToFiatConverter._find_price", return_value=15000.0
+        "fxtbot.rpc.fiat_convert.CryptoToFiatConverter._find_price", return_value=15000.0
     )
-    msg_mock = mocker.patch("freqtrade.rpc.telegram.Telegram.send_msg", MagicMock())
-    mocker.patch("freqtrade.rpc.telegram.Telegram._init", MagicMock())
+    msg_mock = mocker.patch("fxtbot.rpc.telegram.Telegram.send_msg", MagicMock())
+    mocker.patch("fxtbot.rpc.telegram.Telegram._init", MagicMock())
     patch_exchange(mocker)
     patch_whitelist(mocker, default_conf)
 
@@ -1393,10 +1393,10 @@ async def test_telegram_force_exit_down_handle(
 async def test_forceexit_all_handle(default_conf, update, ticker, fee, mocker) -> None:
     patch_exchange(mocker)
     mocker.patch(
-        "freqtrade.rpc.fiat_convert.CryptoToFiatConverter._find_price", return_value=15000.0
+        "fxtbot.rpc.fiat_convert.CryptoToFiatConverter._find_price", return_value=15000.0
     )
-    msg_mock = mocker.patch("freqtrade.rpc.telegram.Telegram.send_msg", MagicMock())
-    mocker.patch("freqtrade.rpc.telegram.Telegram._init", MagicMock())
+    msg_mock = mocker.patch("fxtbot.rpc.telegram.Telegram.send_msg", MagicMock())
+    mocker.patch("fxtbot.rpc.telegram.Telegram._init", MagicMock())
     patch_whitelist(mocker, default_conf)
     mocker.patch.multiple(
         EXMS,
@@ -1458,7 +1458,7 @@ async def test_forceexit_all_handle(default_conf, update, ticker, fee, mocker) -
 
 async def test_forceexit_handle_invalid(default_conf, update, mocker) -> None:
     mocker.patch(
-        "freqtrade.rpc.fiat_convert.CryptoToFiatConverter._find_price", return_value=15000.0
+        "fxtbot.rpc.fiat_convert.CryptoToFiatConverter._find_price", return_value=15000.0
     )
 
     telegram, freqtradebot, msg_mock = get_telegram_testobject(mocker, default_conf)
@@ -1492,7 +1492,7 @@ async def test_force_exit_no_pair(default_conf, update, ticker, fee, mocker) -> 
         get_fee=fee,
         _dry_is_price_crossed=MagicMock(return_value=True),
     )
-    femock = mocker.patch("freqtrade.rpc.rpc.RPC._rpc_force_exit")
+    femock = mocker.patch("fxtbot.rpc.rpc.RPC._rpc_force_exit")
     telegram, freqtradebot, msg_mock = get_telegram_testobject(mocker, default_conf)
 
     patch_get_signal(freqtradebot)
@@ -1538,10 +1538,10 @@ async def test_force_exit_no_pair(default_conf, update, ticker, fee, mocker) -> 
 
 
 async def test_force_enter_handle(default_conf, update, mocker) -> None:
-    mocker.patch("freqtrade.rpc.rpc.CryptoToFiatConverter._find_price", return_value=15000.0)
+    mocker.patch("fxtbot.rpc.rpc.CryptoToFiatConverter._find_price", return_value=15000.0)
 
     fbuy_mock = MagicMock(return_value=None)
-    mocker.patch("freqtrade.rpc.rpc.RPC._rpc_force_entry", fbuy_mock)
+    mocker.patch("fxtbot.rpc.rpc.RPC._rpc_force_entry", fbuy_mock)
 
     telegram, freqtradebot, _ = get_telegram_testobject(mocker, default_conf)
     patch_get_signal(freqtradebot)
@@ -1558,7 +1558,7 @@ async def test_force_enter_handle(default_conf, update, mocker) -> None:
 
     # Reset and retry with specified price
     fbuy_mock = MagicMock(return_value=None)
-    mocker.patch("freqtrade.rpc.rpc.RPC._rpc_force_entry", fbuy_mock)
+    mocker.patch("fxtbot.rpc.rpc.RPC._rpc_force_entry", fbuy_mock)
     # /forcelong ETH/BTC 0.055
     context = MagicMock()
     context.args = ["ETH/BTC", "0.055"]
@@ -1571,7 +1571,7 @@ async def test_force_enter_handle(default_conf, update, mocker) -> None:
 
 
 async def test_force_enter_handle_exception(default_conf, update, mocker) -> None:
-    mocker.patch("freqtrade.rpc.rpc.CryptoToFiatConverter._find_price", return_value=15000.0)
+    mocker.patch("fxtbot.rpc.rpc.CryptoToFiatConverter._find_price", return_value=15000.0)
 
     telegram, freqtradebot, msg_mock = get_telegram_testobject(mocker, default_conf)
     patch_get_signal(freqtradebot)
@@ -1583,10 +1583,10 @@ async def test_force_enter_handle_exception(default_conf, update, mocker) -> Non
 
 
 async def test_force_enter_no_pair(default_conf, update, mocker) -> None:
-    mocker.patch("freqtrade.rpc.rpc.CryptoToFiatConverter._find_price", return_value=15000.0)
+    mocker.patch("fxtbot.rpc.rpc.CryptoToFiatConverter._find_price", return_value=15000.0)
 
     fbuy_mock = MagicMock(return_value=None)
-    mocker.patch("freqtrade.rpc.rpc.RPC._rpc_force_entry", fbuy_mock)
+    mocker.patch("fxtbot.rpc.rpc.RPC._rpc_force_entry", fbuy_mock)
 
     telegram, freqtradebot, msg_mock = get_telegram_testobject(mocker, default_conf)
 
@@ -1661,7 +1661,7 @@ async def test_telegram_entry_tag_performance_handle(
 
     msg_mock.reset_mock()
     mocker.patch(
-        "freqtrade.rpc.rpc.RPC._rpc_enter_tag_performance", side_effect=RPCException("Error")
+        "fxtbot.rpc.rpc.RPC._rpc_enter_tag_performance", side_effect=RPCException("Error")
     )
     await telegram._enter_tag_performance(update=update, context=MagicMock())
 
@@ -1694,7 +1694,7 @@ async def test_telegram_exit_reason_performance_handle(
 
     msg_mock.reset_mock()
     mocker.patch(
-        "freqtrade.rpc.rpc.RPC._rpc_exit_reason_performance", side_effect=RPCException("Error")
+        "fxtbot.rpc.rpc.RPC._rpc_exit_reason_performance", side_effect=RPCException("Error")
     )
     await telegram._exit_reason_performance(update=update, context=MagicMock())
 
@@ -1728,7 +1728,7 @@ async def test_telegram_mix_tag_performance_handle(
 
     msg_mock.reset_mock()
     mocker.patch(
-        "freqtrade.rpc.rpc.RPC._rpc_mix_tag_performance", side_effect=RPCException("Error")
+        "fxtbot.rpc.rpc.RPC._rpc_mix_tag_performance", side_effect=RPCException("Error")
     )
     await telegram._mix_tag_performance(update=update, context=MagicMock())
 
@@ -1923,7 +1923,7 @@ async def test_blacklist_static(default_conf, update, mocker) -> None:
 
 async def test_telegram_logs(default_conf, update, mocker) -> None:
     mocker.patch.multiple(
-        "freqtrade.rpc.telegram.Telegram",
+        "fxtbot.rpc.telegram.Telegram",
         _init=MagicMock(),
     )
     setup_logging(default_conf)
@@ -1934,7 +1934,7 @@ async def test_telegram_logs(default_conf, update, mocker) -> None:
     context.args = []
     await telegram._logs(update=update, context=context)
     assert msg_mock.call_count == 1
-    assert "freqtrade\\.rpc\\.telegram" in msg_mock.call_args_list[0][0][0]
+    assert "fxtbot\\.rpc\\.telegram" in msg_mock.call_args_list[0][0][0]
 
     msg_mock.reset_mock()
     context.args = ["1"]
@@ -1943,7 +1943,7 @@ async def test_telegram_logs(default_conf, update, mocker) -> None:
 
     msg_mock.reset_mock()
     # Test with changed MaxMessageLength
-    mocker.patch("freqtrade.rpc.telegram.MAX_MESSAGE_LENGTH", 200)
+    mocker.patch("fxtbot.rpc.telegram.MAX_MESSAGE_LENGTH", 200)
     context = MagicMock()
     context.args = []
     await telegram._logs(update=update, context=context)
@@ -1962,7 +1962,7 @@ async def test_edge_disabled(default_conf, update, mocker) -> None:
 
 async def test_edge_enabled(edge_conf, update, mocker) -> None:
     mocker.patch(
-        "freqtrade.edge.Edge._cached_pairs",
+        "fxtbot.edge.Edge._cached_pairs",
         mocker.PropertyMock(
             return_value={
                 "E/F": PairInfo(-0.01, 0.66, 3.71, 0.50, 1.71, 10, 60),
@@ -1979,7 +1979,7 @@ async def test_edge_enabled(edge_conf, update, mocker) -> None:
 
     msg_mock.reset_mock()
 
-    mocker.patch("freqtrade.edge.Edge._cached_pairs", mocker.PropertyMock(return_value={}))
+    mocker.patch("fxtbot.edge.Edge._cached_pairs", mocker.PropertyMock(return_value={}))
     await telegram._edge(update=update, context=MagicMock())
     assert msg_mock.call_count == 1
     assert "<b>Edge only validated following pairs:</b>" in msg_mock.call_args_list[0][0][0]
@@ -2158,7 +2158,7 @@ def test_send_msg_enter_notification(
         }
     )
     mocker.patch(
-        "freqtrade.data.dataprovider.DataProvider.get_analyzed_dataframe", return_value=(df, 1)
+        "fxtbot.data.dataprovider.DataProvider.get_analyzed_dataframe", return_value=(df, 1)
     )
 
     msg = {
@@ -2755,7 +2755,7 @@ def test__exit_emoji(default_conf, mocker, msg, expected):
 
 
 async def test_telegram__send_msg(default_conf, mocker, caplog) -> None:
-    mocker.patch("freqtrade.rpc.telegram.Telegram._init", MagicMock())
+    mocker.patch("fxtbot.rpc.telegram.Telegram._init", MagicMock())
     bot = MagicMock()
     bot.send_message = AsyncMock()
     bot.edit_message_text = AsyncMock()
@@ -2790,7 +2790,7 @@ async def test_telegram__send_msg(default_conf, mocker, caplog) -> None:
 
 
 async def test__send_msg_network_error(default_conf, mocker, caplog) -> None:
-    mocker.patch("freqtrade.rpc.telegram.Telegram._init", MagicMock())
+    mocker.patch("fxtbot.rpc.telegram.Telegram._init", MagicMock())
     bot = MagicMock()
     bot.send_message = MagicMock(side_effect=NetworkError("Oh snap"))
     telegram, _, _ = get_telegram_testobject(mocker, default_conf, mock=False)
@@ -2807,7 +2807,7 @@ async def test__send_msg_network_error(default_conf, mocker, caplog) -> None:
 
 @pytest.mark.filterwarnings("ignore:.*ChatPermissions")
 async def test__send_msg_keyboard(default_conf, mocker, caplog) -> None:
-    mocker.patch("freqtrade.rpc.telegram.Telegram._init", MagicMock())
+    mocker.patch("fxtbot.rpc.telegram.Telegram._init", MagicMock())
     bot = MagicMock()
     bot.send_message = AsyncMock()
     freqtradebot = get_patched_freqtradebot(mocker, default_conf)

@@ -49,7 +49,7 @@ Define your desired settings for orderflow processing within the orderflow secti
 To download historical trade data for backtesting, use the --dl-trades flag with the freqtrade download-data command.
 
 ```bash
-freqtrade download-data -p BTC/USDT:USDT --timerange 20230101- --trading-mode futures --timeframes 5m --dl-trades
+fxtbot download-data -p BTC/USDT:USDT --timerange 20230101- --trading-mode futures --timeframes 5m --dl-trades
 ```
 
 !!! Warning "Data availability"

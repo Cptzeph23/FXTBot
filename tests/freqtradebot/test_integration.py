@@ -4,10 +4,10 @@ from unittest.mock import MagicMock
 import pytest
 from sqlalchemy import select
 
-from freqtrade.enums import ExitCheckTuple, ExitType, TradingMode
-from freqtrade.persistence import Trade
-from freqtrade.persistence.models import Order
-from freqtrade.rpc.rpc import RPC
+from fxtbot.enums import ExitCheckTuple, ExitType, TradingMode
+from fxtbot.persistence import Trade
+from fxtbot.persistence.models import Order
+from fxtbot.rpc.rpc import RPC
 from tests.conftest import EXMS, get_patched_freqtradebot, log_has_re, patch_get_signal
 
 
@@ -63,14 +63,14 @@ def test_may_execute_exit_stoploss_on_exchange_multi(default_conf, ticker, fee, 
     )
 
     mocker.patch.multiple(
-        "freqtrade.freqtradebot.FreqtradeBot",
+        "fxtbot.freqtradebot.FreqtradeBot",
         create_stoploss_order=MagicMock(return_value=True),
         _notify_exit=MagicMock(),
     )
-    mocker.patch("freqtrade.strategy.interface.IStrategy.should_exit", should_sell_mock)
-    wallets_mock = mocker.patch("freqtrade.wallets.Wallets.update")
-    mocker.patch("freqtrade.wallets.Wallets.get_free", return_value=1000)
-    mocker.patch("freqtrade.wallets.Wallets.check_exit_amount", return_value=True)
+    mocker.patch("fxtbot.strategy.interface.IStrategy.should_exit", should_sell_mock)
+    wallets_mock = mocker.patch("fxtbot.wallets.Wallets.update")
+    mocker.patch("fxtbot.wallets.Wallets.get_free", return_value=1000)
+    mocker.patch("fxtbot.wallets.Wallets.check_exit_amount", return_value=True)
 
     freqtrade = get_patched_freqtradebot(mocker, default_conf)
     freqtrade.strategy.order_types["stoploss_on_exchange"] = True
@@ -146,7 +146,7 @@ def test_forcebuy_last_unlimited(default_conf, ticker, fee, mocker, balance_rati
     default_conf["dry_run_wallet"] = 1000
     default_conf["exchange"]["name"] = "binance"
     default_conf["telegram"]["enabled"] = True
-    mocker.patch("freqtrade.rpc.telegram.Telegram", MagicMock())
+    mocker.patch("fxtbot.rpc.telegram.Telegram", MagicMock())
     mocker.patch.multiple(
         EXMS,
         fetch_ticker=ticker,
@@ -156,14 +156,14 @@ def test_forcebuy_last_unlimited(default_conf, ticker, fee, mocker, balance_rati
     )
 
     mocker.patch.multiple(
-        "freqtrade.freqtradebot.FreqtradeBot",
+        "fxtbot.freqtradebot.FreqtradeBot",
         create_stoploss_order=MagicMock(return_value=True),
         _notify_exit=MagicMock(),
     )
     should_sell_mock = MagicMock(
         side_effect=[[], [ExitCheckTuple(exit_type=ExitType.EXIT_SIGNAL)], [], [], []]
     )
-    mocker.patch("freqtrade.strategy.interface.IStrategy.should_exit", should_sell_mock)
+    mocker.patch("fxtbot.strategy.interface.IStrategy.should_exit", should_sell_mock)
 
     freqtrade = get_patched_freqtradebot(mocker, default_conf)
     rpc = RPC(freqtrade)
@@ -583,7 +583,7 @@ def test_dca_order_adjust_entry_replace_fails(
     freqtrade.strategy.adjust_entry_price = MagicMock(return_value=1234)
 
     entry_mock = mocker.patch(
-        "freqtrade.freqtradebot.FreqtradeBot.execute_entry", return_value=False
+        "fxtbot.freqtradebot.FreqtradeBot.execute_entry", return_value=False
     )
     msg = r"Could not replace order for.*"
     assert not log_has_re(msg, caplog)

@@ -5,9 +5,9 @@ from datetime import datetime
 import talib.abstract as ta
 from pandas import DataFrame
 
-import freqtrade.vendor.qtpylib.indicators as qtpylib
-from freqtrade.persistence import Trade
-from freqtrade.strategy import (
+import fxtbot.vendor.qtpylib.indicators as qtpylib
+from fxtbot.persistence import Trade
+from fxtbot.strategy import (
     BooleanParameter,
     DecimalParameter,
     IntParameter,
@@ -18,7 +18,7 @@ from freqtrade.strategy import (
 
 class StrategyTestV3(IStrategy):
     """
-    Strategy used by tests freqtrade bot.
+    Strategy used by tests fxtbot bot.
     Please do not modify this strategy, it's  intended for internal use only.
     Please look at the SampleStrategy in the user_data/strategy directory
     or strategy repository https://github.com/freqtrade/freqtrade-strategies

@@ -22,7 +22,7 @@ The bot allows you to select which configuration file you want to use by means o
 the `-c/--config` command line option:
 
 ```bash
-freqtrade trade -c path/far/far/away/config.json
+fxtbot trade -c path/far/far/away/config.json
 ```
 
 Per default, the bot loads the `config.json` configuration file from the current
@@ -41,13 +41,13 @@ empty key and secret values while running in the Dry Mode (which does not actual
 require them):
 
 ```bash
-freqtrade trade -c ./config.json
+fxtbot trade -c ./config.json
 ```
 
 and specify both configuration files when running in the normal Live Trade Mode:
 
 ```bash
-freqtrade trade -c ./config.json -c path/to/secrets/keys.config.json
+fxtbot trade -c ./config.json -c path/to/secrets/keys.config.json
 ```
 
 This could help you hide your private Exchange key and Exchange secret on you local machine
@@ -96,7 +96,7 @@ In `user_data/strategies` you have a file `my_awesome_strategy.py` which has
 a strategy class called `AwesomeStrategy` to load it:
 
 ```bash
-freqtrade trade --strategy AwesomeStrategy
+fxtbot trade --strategy AwesomeStrategy
 ```
 
 If the bot does not find your strategy file, it will display in an error
@@ -111,7 +111,7 @@ This parameter allows you to add an additional strategy lookup path, which gets
 checked before the default locations (The passed path must be a directory!):
 
 ```bash
-freqtrade trade --strategy AwesomeStrategy --strategy-path /some/directory
+fxtbot trade --strategy AwesomeStrategy --strategy-path /some/directory
 ```
 
 #### How to install a strategy?
@@ -127,7 +127,7 @@ using `--db-url`. This can also be used to specify a custom database
 in production mode. Example command:
 
 ```bash
-freqtrade trade -c config.json --db-url sqlite:///tradesv3.dry_run.sqlite
+fxtbot trade -c config.json --db-url sqlite:///tradesv3.dry_run.sqlite
 ```
 
 ## Next step

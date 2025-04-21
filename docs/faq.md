@@ -180,22 +180,22 @@ By default, the bot writes its log into stderr stream. This is implemented this 
 
 * In unix shells, this normally can be done as simple as:
 ```shell
-$ freqtrade --some-options 2>&1 >/dev/null | grep 'something'
+$ fxtbot --some-options 2>&1 >/dev/null | grep 'something'
 ```
 (note, `2>&1` and `>/dev/null` should be written in this order)
 
 * Bash interpreter also supports so called process substitution syntax, you can grep the log for a string with it as:
 ```shell
-$ freqtrade --some-options 2> >(grep 'something') >/dev/null
+$ fxtbot --some-options 2> >(grep 'something') >/dev/null
 ```
 or
 ```shell
-$ freqtrade --some-options 2> >(grep -v 'something' 1>&2)
+$ fxtbot --some-options 2> >(grep -v 'something' 1>&2)
 ```
 
 * You can also write the copy of Freqtrade log messages to a file with the `--logfile` option:
 ```shell
-$ freqtrade --logfile /path/to/mylogfile.log --some-options
+$ fxtbot --logfile /path/to/mylogfile.log --some-options
 ```
 and then grep it as:
 ```shell
@@ -243,7 +243,7 @@ Since hyperopt uses Bayesian search, running for too many epochs may not produce
 It's therefore recommended to run between 500-1000 epochs over and over until you hit at least 10000 epochs in total (or are satisfied with the result). You can best judge by looking at the results - if the bot keeps discovering better strategies, it's best to keep on going.
 
 ```bash
-freqtrade hyperopt --hyperopt-loss SharpeHyperOptLossDaily --strategy SampleStrategy -e 1000
+fxtbot hyperopt --hyperopt-loss SharpeHyperOptLossDaily --strategy SampleStrategy -e 1000
 ```
 
 ### Why does it take a long time to run hyperopt?

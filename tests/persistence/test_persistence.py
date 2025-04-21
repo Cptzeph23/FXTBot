@@ -5,12 +5,12 @@ from types import FunctionType
 import pytest
 from sqlalchemy import select
 
-from freqtrade.constants import CUSTOM_TAG_MAX_LENGTH, DATETIME_PRINT_FORMAT
-from freqtrade.enums import TradingMode
-from freqtrade.exceptions import DependencyException
-from freqtrade.exchange.exchange_utils import TICK_SIZE
-from freqtrade.persistence import LocalTrade, Order, Trade, init_db
-from freqtrade.util import dt_now
+from fxtbot.constants import CUSTOM_TAG_MAX_LENGTH, DATETIME_PRINT_FORMAT
+from fxtbot.enums import TradingMode
+from fxtbot.exceptions import DependencyException
+from fxtbot.exchange.exchange_utils import TICK_SIZE
+from fxtbot.persistence import LocalTrade, Order, Trade, init_db
+from fxtbot.util import dt_now
 from tests.conftest import (
     create_mock_trades,
     create_mock_trades_usdt,

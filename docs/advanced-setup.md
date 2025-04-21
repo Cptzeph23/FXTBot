@@ -165,7 +165,7 @@ Copy the `freqtrade.service` file to your systemd user directory (usually `~/.co
 After that you can start the daemon with:
 
 ```bash
-systemctl --user start freqtrade
+systemctl --user start fxtbot
 ```
 
 For this to be persistent (run when user is logged out) you'll need to enable `linger` for your freqtrade user.

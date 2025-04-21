@@ -49,7 +49,7 @@ Profits from early trades will result in subsequent higher stake amounts, result
 With 5 min candle (OHLCV) data (per default)
 
 ```bash
-freqtrade backtesting --strategy AwesomeStrategy
+fxtbot backtesting --strategy AwesomeStrategy
 ```
 
 Where `--strategy AwesomeStrategy` / `-s AwesomeStrategy` refers to the class name of the strategy, which is within a python file in the `user_data/strategies` directory.
@@ -59,7 +59,7 @@ Where `--strategy AwesomeStrategy` / `-s AwesomeStrategy` refers to the class na
 With 1 min candle (OHLCV) data
 
 ```bash
-freqtrade backtesting --strategy AwesomeStrategy --timeframe 1m
+fxtbot backtesting --strategy AwesomeStrategy --timeframe 1m
 ```
 
 ---
@@ -67,7 +67,7 @@ freqtrade backtesting --strategy AwesomeStrategy --timeframe 1m
 Providing a custom starting balance of 1000 (in stake currency)
 
 ```bash
-freqtrade backtesting --strategy AwesomeStrategy --dry-run-wallet 1000
+fxtbot backtesting --strategy AwesomeStrategy --dry-run-wallet 1000
 ```
 
 ---
@@ -78,7 +78,7 @@ Assume you downloaded the history data from the Binance exchange and kept it in 
 You can then use this data for backtesting as follows:
 
 ```bash
-freqtrade backtesting --strategy AwesomeStrategy --datadir user_data/data/binance-20180101 
+fxtbot backtesting --strategy AwesomeStrategy --datadir user_data/data/binance-20180101 
 ```
 
 ---
@@ -86,7 +86,7 @@ freqtrade backtesting --strategy AwesomeStrategy --datadir user_data/data/binanc
 Comparing multiple Strategies
 
 ```bash
-freqtrade backtesting --strategy-list SampleStrategy1 AwesomeStrategy --timeframe 5m
+fxtbot backtesting --strategy-list SampleStrategy1 AwesomeStrategy --timeframe 5m
 ```
 
 Where `SampleStrategy1` and `AwesomeStrategy` refer to class names of strategies.
@@ -96,7 +96,7 @@ Where `SampleStrategy1` and `AwesomeStrategy` refer to class names of strategies
 Prevent exporting trades to file
 
 ```bash
-freqtrade backtesting --strategy backtesting --export none --config config.json 
+fxtbot backtesting --strategy backtesting --export none --config config.json 
 ```
 
 Only use this if you're sure you'll not want to plot or analyze your results further.
@@ -106,7 +106,7 @@ Only use this if you're sure you'll not want to plot or analyze your results fur
 Exporting trades to file specifying a custom filename
 
 ```bash
-freqtrade backtesting --strategy backtesting --export trades --export-filename=backtest_samplestrategy.json
+fxtbot backtesting --strategy backtesting --export trades --export-filename=backtest_samplestrategy.json
 ```
 
 Please also read about the [strategy startup period](strategy-customization.md#strategy-startup-period).
@@ -122,7 +122,7 @@ This fee must be a ratio, and will be applied twice (once for trade entry, and o
 For example, if the commission fee per order is 0.1% (i.e., 0.001 written as ratio), then you would run backtesting as the following:
 
 ```bash
-freqtrade backtesting --fee 0.001
+fxtbot backtesting --fee 0.001
 ```
 
 !!! Note
@@ -137,7 +137,7 @@ Use the `--timerange` argument to change how much of the test-set you want to us
 For example, running backtesting with the `--timerange=20190501-` option will use all available data starting with May 1st, 2019 from your input data.
 
 ```bash
-freqtrade backtesting --timerange=20190501-
+fxtbot backtesting --timerange=20190501-
 ```
 
 You can also specify particular date ranges.

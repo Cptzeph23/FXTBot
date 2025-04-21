@@ -105,7 +105,7 @@ function updateenv() {
     fi
 
     echo "Installing freqUI"
-    freqtrade install-ui
+    fxtbot install-ui
 
     echo "pip install completed"
     echo

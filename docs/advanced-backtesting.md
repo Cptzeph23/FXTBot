@@ -83,7 +83,7 @@ To show only certain buy and sell tags in the displayed output, use the followin
 For example:
 
 ```bash
-freqtrade backtesting-analysis -c <config.json> --analysis-groups 0 2 --enter-reason-list enter_tag_a enter_tag_b --exit-reason-list roi custom_exit_tag_a stop_loss
+fxtbot backtesting-analysis -c <config.json> --analysis-groups 0 2 --enter-reason-list enter_tag_a enter_tag_b --exit-reason-list roi custom_exit_tag_a stop_loss
 ```
 
 ### Outputting signal candle indicators
@@ -94,7 +94,7 @@ indicators. To print out a column for a given set of indicators, use the `--indi
 option:
 
 ```bash
-freqtrade backtesting-analysis -c <config.json> --analysis-groups 0 2 --enter-reason-list enter_tag_a enter_tag_b --exit-reason-list roi custom_exit_tag_a stop_loss --indicator-list rsi rsi_1h bb_lowerband ema_9 macd macdsignal
+fxtbot backtesting-analysis -c <config.json> --analysis-groups 0 2 --enter-reason-list enter_tag_a enter_tag_b --exit-reason-list roi custom_exit_tag_a stop_loss --indicator-list rsi rsi_1h bb_lowerband ema_9 macd macdsignal
 ```
 
 The indicators have to be present in your strategy's main DataFrame (either for your main
@@ -123,7 +123,7 @@ automatically accessible by including them on the indicator-list, and these incl
 #### Sample Output for Indicator Values
 
 ```bash
-freqtrade backtesting-analysis -c user_data/config.json --analysis-groups 0 --indicator-list chikou_span tenkan_sen 
+fxtbot backtesting-analysis -c user_data/config.json --analysis-groups 0 --indicator-list chikou_span tenkan_sen 
 ```
 
 In this example,
@@ -156,13 +156,13 @@ The `--indicator-list` option, by default, displays indicator values for both en
 Example: Display indicator values at entry signals:
 
 ```bash
-freqtrade backtesting-analysis -c user_data/config.json --analysis-groups 0 --indicator-list chikou_span tenkan_sen --entry-only
+fxtbot backtesting-analysis -c user_data/config.json --analysis-groups 0 --indicator-list chikou_span tenkan_sen --entry-only
 ```
 
 Example: Display indicator values at exit signals:
 
 ```bash
-freqtrade backtesting-analysis -c user_data/config.json --analysis-groups 0 --indicator-list chikou_span tenkan_sen --exit-only
+fxtbot backtesting-analysis -c user_data/config.json --analysis-groups 0 --indicator-list chikou_span tenkan_sen --exit-only
 ```
 
 !!! note 
@@ -179,7 +179,7 @@ To show only trades between dates within your backtested timerange, supply the u
 For example, if your backtest timerange was `20220101-20221231` but you only want to output trades in January:
 
 ```bash
-freqtrade backtesting-analysis -c <config.json> --timerange 20220101-20220201
+fxtbot backtesting-analysis -c <config.json> --timerange 20220101-20220201
 ```
 
 ### Printing out rejected signals
@@ -187,7 +187,7 @@ freqtrade backtesting-analysis -c <config.json> --timerange 20220101-20220201
 Use the `--rejected-signals` option to print out rejected signals.
 
 ```bash
-freqtrade backtesting-analysis -c <config.json> --rejected-signals
+fxtbot backtesting-analysis -c <config.json> --rejected-signals
 ```
 
 ### Writing tables to CSV
@@ -196,13 +196,13 @@ Some of the tabular outputs can become large, so printing them out to the termin
 Use the `--analysis-to-csv` option to disable printing out of tables to standard out and write them to CSV files.
 
 ```bash
-freqtrade backtesting-analysis -c <config.json> --analysis-to-csv
+fxtbot backtesting-analysis -c <config.json> --analysis-to-csv
 ```
 
 By default this will write one file per output table you specified in the `backtesting-analysis` command, e.g.
 
 ```bash
-freqtrade backtesting-analysis -c <config.json> --analysis-to-csv --rejected-signals --analysis-groups 0 1
+fxtbot backtesting-analysis -c <config.json> --analysis-to-csv --rejected-signals --analysis-groups 0 1
 ```
 
 This will write to `user_data/backtest_results`:
@@ -214,5 +214,5 @@ This will write to `user_data/backtest_results`:
 To override where the files will be written, also specify the `--analysis-csv-path` option.
 
 ```bash
-freqtrade backtesting-analysis -c <config.json> --analysis-to-csv --analysis-csv-path another/data/path/
+fxtbot backtesting-analysis -c <config.json> --analysis-to-csv --analysis-csv-path another/data/path/
 ```

@@ -3,8 +3,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from freqtrade.enums.marginmode import MarginMode
-from freqtrade.enums.tradingmode import TradingMode
+from fxtbot.enums.marginmode import MarginMode
+from fxtbot.enums.tradingmode import TradingMode
 from tests.conftest import EXMS, get_mock_coro, get_patched_exchange, log_has
 from tests.exchange.test_exchange import ccxt_exceptionhandlers
 

@@ -1,5 +1,5 @@
-from freqtrade.util import decimals_per_coin, fmt_coin, round_value
-from freqtrade.util.formatters import fmt_coin2
+from fxtbot.util import decimals_per_coin, fmt_coin, round_value
+from fxtbot.util.formatters import fmt_coin2
 
 
 def test_decimals_per_coin():

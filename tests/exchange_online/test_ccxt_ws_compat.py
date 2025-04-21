@@ -10,9 +10,9 @@ from time import sleep
 
 import pytest
 
-from freqtrade.enums import CandleType
-from freqtrade.exchange.exchange_utils import timeframe_to_prev_date
-from freqtrade.util.datetime_helpers import dt_now
+from fxtbot.enums import CandleType
+from fxtbot.exchange.exchange_utils import timeframe_to_prev_date
+from fxtbot.util.datetime_helpers import dt_now
 from tests.conftest import log_has_re
 from tests.exchange_online.conftest import EXCHANGE_WS_FIXTURE_TYPE
 

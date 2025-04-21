@@ -9,18 +9,18 @@ import pytest
 from pandas import DataFrame, Timestamp
 from pandas.testing import assert_frame_equal
 
-from freqtrade.configuration import TimeRange
-from freqtrade.constants import AVAILABLE_DATAHANDLERS
-from freqtrade.data.history.datahandlers.featherdatahandler import FeatherDataHandler
-from freqtrade.data.history.datahandlers.idatahandler import (
+from fxtbot.configuration import TimeRange
+from fxtbot.constants import AVAILABLE_DATAHANDLERS
+from fxtbot.data.history.datahandlers.featherdatahandler import FeatherDataHandler
+from fxtbot.data.history.datahandlers.idatahandler import (
     IDataHandler,
     get_datahandler,
     get_datahandlerclass,
 )
-from freqtrade.data.history.datahandlers.jsondatahandler import JsonDataHandler, JsonGzDataHandler
-from freqtrade.data.history.datahandlers.parquetdatahandler import ParquetDataHandler
-from freqtrade.enums import CandleType, TradingMode
-from freqtrade.exceptions import OperationalException
+from fxtbot.data.history.datahandlers.jsondatahandler import JsonDataHandler, JsonGzDataHandler
+from fxtbot.data.history.datahandlers.parquetdatahandler import ParquetDataHandler
+from fxtbot.enums import CandleType, TradingMode
+from fxtbot.exceptions import OperationalException
 from tests.conftest import log_has, log_has_re
 
 
@@ -391,11 +391,11 @@ def test_generic_datahandler_ohlcv_load_and_resave(
 
     # Try loading a file that exists but errors
     mocker.patch(
-        "freqtrade.data.history.datahandlers.featherdatahandler.read_feather",
+        "fxtbot.data.history.datahandlers.featherdatahandler.read_feather",
         side_effect=Exception("Test"),
     )
     mocker.patch(
-        "freqtrade.data.history.datahandlers.parquetdatahandler.read_parquet",
+        "fxtbot.data.history.datahandlers.parquetdatahandler.read_parquet",
         side_effect=Exception("Test"),
     )
     ohlcv_e = dh1.ohlcv_load("UNITTEST/NEW", timeframe, candle_type=candle_type)

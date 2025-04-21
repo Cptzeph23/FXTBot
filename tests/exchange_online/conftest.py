@@ -3,9 +3,9 @@ from pathlib import Path
 
 import pytest
 
-from freqtrade.constants import Config
-from freqtrade.exchange.exchange import Exchange
-from freqtrade.resolvers.exchange_resolver import ExchangeResolver
+from fxtbot.constants import Config
+from fxtbot.exchange.exchange import Exchange
+from fxtbot.resolvers.exchange_resolver import ExchangeResolver
 from tests.conftest import EXMS, get_default_conf_usdt
 
 
@@ -553,12 +553,12 @@ def get_futures_exchange(exchange_name, exchange_conf, class_mocker):
         exchange_conf["trading_mode"] = "futures"
         exchange_conf["margin_mode"] = "isolated"
 
-        class_mocker.patch("freqtrade.exchange.binance.Binance.fill_leverage_tiers")
+        class_mocker.patch("fxtbot.exchange.binance.Binance.fill_leverage_tiers")
         class_mocker.patch(f"{EXMS}.fetch_trading_fees")
-        class_mocker.patch("freqtrade.exchange.okx.Okx.additional_exchange_init")
-        class_mocker.patch("freqtrade.exchange.binance.Binance.additional_exchange_init")
-        class_mocker.patch("freqtrade.exchange.bybit.Bybit.additional_exchange_init")
-        class_mocker.patch("freqtrade.exchange.gate.Gate.additional_exchange_init")
+        class_mocker.patch("fxtbot.exchange.okx.Okx.additional_exchange_init")
+        class_mocker.patch("fxtbot.exchange.binance.Binance.additional_exchange_init")
+        class_mocker.patch("fxtbot.exchange.bybit.Bybit.additional_exchange_init")
+        class_mocker.patch("fxtbot.exchange.gate.Gate.additional_exchange_init")
         class_mocker.patch(f"{EXMS}.load_cached_leverage_tiers", return_value=None)
         class_mocker.patch(f"{EXMS}.cache_leverage_tiers")
 
@@ -567,7 +567,7 @@ def get_futures_exchange(exchange_name, exchange_conf, class_mocker):
 
 @pytest.fixture(params=EXCHANGES, scope="class")
 def exchange(request, exchange_conf, class_mocker):
-    class_mocker.patch("freqtrade.exchange.bybit.Bybit.additional_exchange_init")
+    class_mocker.patch("fxtbot.exchange.bybit.Bybit.additional_exchange_init")
     return get_exchange(request.param, exchange_conf)
 
 
@@ -583,7 +583,7 @@ def exchange_mode(request):
 
 @pytest.fixture(params=EXCHANGES, scope="class")
 def exchange_ws(request, exchange_conf, exchange_mode, class_mocker):
-    class_mocker.patch("freqtrade.exchange.bybit.Bybit.additional_exchange_init")
+    class_mocker.patch("fxtbot.exchange.bybit.Bybit.additional_exchange_init")
     exchange_conf["exchange"]["enable_ws"] = True
     exchange_param = EXCHANGES[request.param]
     if exchange_param.get("skip_ws_tests"):

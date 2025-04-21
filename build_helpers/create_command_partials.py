@@ -39,7 +39,7 @@ subcommands = [
     "recursive-analysis",
 ]
 
-result = subprocess.run(["freqtrade", "--help"], capture_output=True, text=True)
+result = subprocess.run(["fxtbot", "--help"], capture_output=True, text=True)
 
 with Path("docs/commands/main.md").open("w") as f:
     f.write(f"```\n{result.stdout}\n```\n")
@@ -47,7 +47,7 @@ with Path("docs/commands/main.md").open("w") as f:
 
 for command in subcommands:
     print(f"Running for {command}")
-    result = subprocess.run(["freqtrade", command, "--help"], capture_output=True, text=True)
+    result = subprocess.run(["fxtbot", command, "--help"], capture_output=True, text=True)
 
     with Path(f"docs/commands/{command}.md").open("w") as f:
         f.write(f"```\n{result.stdout}\n```\n")

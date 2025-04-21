@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 import time_machine
 
-from freqtrade.util import (
+from fxtbot.util import (
     dt_floor_day,
     dt_from_ts,
     dt_now,
@@ -16,7 +16,7 @@ from freqtrade.util import (
     format_ms_time_det,
     shorten_date,
 )
-from freqtrade.util.datetime_helpers import dt_humanize_delta
+from fxtbot.util.datetime_helpers import dt_humanize_delta
 
 
 def test_dt_now():

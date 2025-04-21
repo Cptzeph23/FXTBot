@@ -21,8 +21,9 @@ For the data to be able to be stored within the database, freqtrade must seriali
 Freqtrade will attempt to reverse this action on retrieval, so from a strategy perspective, this should not be relevant.
 
 ```python
-from freqtrade.persistence import Trade
+from fxtbot.persistence import Trade
 from datetime import timedelta
+
 
 class AwesomeStrategy(IStrategy):
 
@@ -43,11 +44,11 @@ class AwesomeStrategy(IStrategy):
                            entry_tag: str | None, side: str, **kwargs) -> float:
         # Limit orders to use and follow SMA200 as price target for the first 10 minutes since entry trigger for BTC/USDT pair.
         if (
-            pair == 'BTC/USDT' 
-            and entry_tag == 'long_sma200' 
-            and side == 'long' 
-            and (current_time - timedelta(minutes=10)) > trade.open_date_utc 
-            and order.filled == 0.0
+                pair == 'BTC/USDT'
+                and entry_tag == 'long_sma200'
+                and side == 'long'
+                and (current_time - timedelta(minutes=10)) > trade.open_date_utc
+                and order.filled == 0.0
         ):
             dataframe, _ = self.dp.get_analyzed_dataframe(pair=pair, timeframe=self.timeframe)
             current_candle = dataframe.iloc[-1].squeeze()
@@ -65,7 +66,8 @@ class AwesomeStrategy(IStrategy):
         # default: maintain existing order
         return current_order_rate
 
-    def custom_exit(self, pair: str, trade: Trade, current_time: datetime, current_rate: float, current_profit: float, **kwargs):
+    def custom_exit(self, pair: str, trade: Trade, current_time: datetime, current_rate: float, current_profit: float,
+                    **kwargs):
 
         entry_adjustment_count = trade.get_custom_data(key='num_entry_adjustments')
         trade_entry_type = trade.get_custom_data(key='entry_type')

@@ -494,7 +494,7 @@ jobs:
     ]
     runs-on: ubuntu-22.04
     # Discord notification can't handle schedule events
-    if: github.event_name != 'schedule' && github.repository == 'freqtrade/freqtrade'
+    if: github.event_name != 'schedule' && github.repository == 'fxtbot/fxtbot'
     permissions:
       repository-projects: read
     steps:
@@ -538,7 +538,7 @@ jobs:
     - name: Upload artifacts 📦
       uses: actions/upload-artifact@v4
       with:
-        name: freqtrade-build
+        name: fxtbot-build
         path: |
           dist
         retention-days: 10
@@ -551,7 +551,7 @@ jobs:
     - name: Upload artifacts 📦
       uses: actions/upload-artifact@v4
       with:
-        name: freqtrade-client-build
+        name: fxtbot-client-build
         path: |
           ft_client/dist
         retention-days: 10
@@ -575,7 +575,7 @@ jobs:
     - name: Download artifact  📦
       uses: actions/download-artifact@v4
       with:
-        pattern: freqtrade*-build
+        pattern: fxtbot*-build
         path: dist
         merge-multiple: true
 
@@ -604,7 +604,7 @@ jobs:
     - name: Download artifact  📦
       uses: actions/download-artifact@v4
       with:
-        pattern: freqtrade*-build
+        pattern: fxtbot*-build
         path: dist
         merge-multiple: true
 
@@ -616,7 +616,7 @@ jobs:
     needs: [ build-linux, build-macos, build-windows, docs-check, mypy-version-check, pre-commit ]
     runs-on: ubuntu-22.04
 
-    if: (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'release') && github.repository == 'freqtrade/freqtrade'
+    if: (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'release') && github.repository == 'fxtbot/fxtbot'
 
     steps:
     - uses: actions/checkout@v4
@@ -674,7 +674,7 @@ jobs:
     needs: [ deploy-docker ]
     # Only run on 64bit machines
     runs-on: [self-hosted, linux, ARM64]
-    if: (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'release') && github.repository == 'freqtrade/freqtrade'
+    if: (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'release') && github.repository == 'fxtbot/fxtbot'
 
     steps:
     - uses: actions/checkout@v4

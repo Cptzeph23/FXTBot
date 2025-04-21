@@ -4,9 +4,9 @@ from unittest.mock import MagicMock, PropertyMock
 import pytest
 import requests
 
-from freqtrade.exceptions import OperationalException
-from freqtrade.plugins.pairlist.RemotePairList import RemotePairList
-from freqtrade.plugins.pairlistmanager import PairListManager
+from fxtbot.exceptions import OperationalException
+from fxtbot.plugins.pairlist.RemotePairList import RemotePairList
+from fxtbot.plugins.pairlistmanager import PairListManager
 from tests.conftest import EXMS, get_patched_exchange, get_patched_freqtradebot, log_has
 
 
@@ -26,13 +26,13 @@ def rpl_config(default_conf):
 def test_gen_pairlist_with_local_file(mocker, rpl_config):
     mock_file = MagicMock()
     mock_file.read.return_value = '{"pairs": ["TKN/USDT","ETH/USDT","NANO/USDT"]}'
-    mocker.patch("freqtrade.plugins.pairlist.RemotePairList.open", return_value=mock_file)
+    mocker.patch("fxtbot.plugins.pairlist.RemotePairList.open", return_value=mock_file)
 
-    mock_file_path = mocker.patch("freqtrade.plugins.pairlist.RemotePairList.Path")
+    mock_file_path = mocker.patch("fxtbot.plugins.pairlist.RemotePairList.Path")
     mock_file_path.exists.return_value = True
 
     jsonparse = json.loads(mock_file.read.return_value)
-    mocker.patch("freqtrade.plugins.pairlist.RemotePairList.rapidjson.load", return_value=jsonparse)
+    mocker.patch("fxtbot.plugins.pairlist.RemotePairList.rapidjson.load", return_value=jsonparse)
 
     rpl_config["pairlists"] = [
         {
@@ -76,7 +76,7 @@ def test_fetch_pairlist_mock_response_html(mocker, rpl_config):
     pairlistmanager = PairListManager(exchange, rpl_config)
 
     mocker.patch(
-        "freqtrade.plugins.pairlist.RemotePairList.requests.get", return_value=mock_response
+        "fxtbot.plugins.pairlist.RemotePairList.requests.get", return_value=mock_response
     )
     remote_pairlist = RemotePairList(
         exchange, pairlistmanager, rpl_config, rpl_config["pairlists"][0], 0
@@ -101,7 +101,7 @@ def test_fetch_pairlist_timeout_keep_last_pairlist(mocker, rpl_config, caplog):
     pairlistmanager = PairListManager(exchange, rpl_config)
 
     mocker.patch(
-        "freqtrade.plugins.pairlist.RemotePairList.requests.get",
+        "fxtbot.plugins.pairlist.RemotePairList.requests.get",
         side_effect=requests.exceptions.RequestException,
     )
 
@@ -179,7 +179,7 @@ def test_fetch_pairlist_mock_response_valid(mocker, rpl_config):
 
     mock_response.elapsed.total_seconds.return_value = 0.4
     mocker.patch(
-        "freqtrade.plugins.pairlist.RemotePairList.requests.get", return_value=mock_response
+        "fxtbot.plugins.pairlist.RemotePairList.requests.get", return_value=mock_response
     )
 
     exchange = get_patched_exchange(mocker, rpl_config)
@@ -274,7 +274,7 @@ def test_remote_pairlist_blacklist(mocker, rpl_config, caplog, markets, tickers)
     )
 
     mocker.patch(
-        "freqtrade.plugins.pairlist.RemotePairList.requests.get", return_value=mock_response
+        "fxtbot.plugins.pairlist.RemotePairList.requests.get", return_value=mock_response
     )
 
     exchange = get_patched_exchange(mocker, rpl_config)
@@ -324,7 +324,7 @@ def test_remote_pairlist_whitelist(mocker, rpl_config, processing_mode, markets,
     )
 
     mocker.patch(
-        "freqtrade.plugins.pairlist.RemotePairList.requests.get", return_value=mock_response
+        "fxtbot.plugins.pairlist.RemotePairList.requests.get", return_value=mock_response
     )
 
     exchange = get_patched_exchange(mocker, rpl_config)

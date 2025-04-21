@@ -6,9 +6,9 @@ from zipfile import ZipFile
 import pytest
 from pandas import DataFrame, DateOffset, Timestamp, to_datetime
 
-from freqtrade.configuration import TimeRange
-from freqtrade.constants import LAST_BT_RESULT_FN
-from freqtrade.data.btanalysis import (
+from fxtbot.configuration import TimeRange
+from fxtbot.constants import LAST_BT_RESULT_FN
+from fxtbot.data.btanalysis import (
     BT_DATA_COLUMNS,
     analyze_trade_parallelism,
     extract_trades_of_period,
@@ -20,8 +20,8 @@ from freqtrade.data.btanalysis import (
     load_trades,
     load_trades_from_db,
 )
-from freqtrade.data.history import load_data, load_pair_history
-from freqtrade.data.metrics import (
+from fxtbot.data.history import load_data, load_pair_history
+from fxtbot.data.metrics import (
     calculate_cagr,
     calculate_calmar,
     calculate_csum,
@@ -36,8 +36,8 @@ from freqtrade.data.metrics import (
     combined_dataframes_with_rel_mean,
     create_cum_profit,
 )
-from freqtrade.exceptions import OperationalException
-from freqtrade.util import dt_utc
+from fxtbot.exceptions import OperationalException
+from fxtbot.util import dt_utc
 from tests.conftest import CURRENT_TEST_STRATEGY, create_mock_trades
 from tests.conftest_trades import MOCK_TRADE_COUNT
 
@@ -56,7 +56,7 @@ def test_get_latest_backtest_filename(testdatadir, mocker):
     res = get_latest_backtest_filename(str(testdir_bt))
     assert res == "backtest-result.json"
 
-    mocker.patch("freqtrade.data.btanalysis.json_load", return_value={})
+    mocker.patch("fxtbot.data.btanalysis.json_load", return_value={})
 
     with pytest.raises(ValueError, match=r"Invalid '.last_result.json' format."):
         get_latest_backtest_filename(testdir_bt)
@@ -84,8 +84,8 @@ def test_load_backtest_metadata(mocker, testdatadir):
     res = load_backtest_metadata(testdatadir / "nonexistent.file.json")
     assert res == {}
 
-    mocker.patch("freqtrade.data.btanalysis.get_backtest_metadata_filename")
-    mocker.patch("freqtrade.data.btanalysis.json_load", side_effect=Exception())
+    mocker.patch("fxtbot.data.btanalysis.get_backtest_metadata_filename")
+    mocker.patch("fxtbot.data.btanalysis.json_load", side_effect=Exception())
     with pytest.raises(
         OperationalException, match=r"Unexpected error.*loading backtest metadata\."
     ):
@@ -94,7 +94,7 @@ def test_load_backtest_metadata(mocker, testdatadir):
 
 def test_load_backtest_data_old_format(testdatadir, mocker):
     filename = testdatadir / "backtest-result_test222.json"
-    mocker.patch("freqtrade.data.btanalysis.load_backtest_stats", return_value=[])
+    mocker.patch("fxtbot.data.btanalysis.load_backtest_stats", return_value=[])
 
     with pytest.raises(
         OperationalException,
@@ -149,7 +149,7 @@ def test_load_backtest_data_multi(testdatadir):
 def test_load_trades_from_db(default_conf, fee, is_short, mocker):
     create_mock_trades(fee, is_short)
     # remove init so it does not init again
-    init_mock = mocker.patch("freqtrade.data.btanalysis.init_db", MagicMock())
+    init_mock = mocker.patch("fxtbot.data.btanalysis.init_db", MagicMock())
 
     trades = load_trades_from_db(db_url=default_conf["db_url"])
     assert init_mock.call_count == 1
@@ -221,8 +221,8 @@ def test_analyze_trade_parallelism(testdatadir):
 
 
 def test_load_trades(default_conf, mocker):
-    db_mock = mocker.patch("freqtrade.data.btanalysis.load_trades_from_db", MagicMock())
-    bt_mock = mocker.patch("freqtrade.data.btanalysis.load_backtest_data", MagicMock())
+    db_mock = mocker.patch("fxtbot.data.btanalysis.load_trades_from_db", MagicMock())
+    bt_mock = mocker.patch("fxtbot.data.btanalysis.load_backtest_data", MagicMock())
 
     load_trades(
         "DB",

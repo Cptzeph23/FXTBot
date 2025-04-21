@@ -31,7 +31,7 @@ As explained above, the agent is "trained" in an artificial trading "environment
 Setting up and running a Reinforcement Learning model is the same as running a Regressor or Classifier. The same two flags, `--freqaimodel` and `--strategy`, must be defined on the command line:
 
 ```bash
-freqtrade trade --freqaimodel ReinforcementLearner --strategy MyRLStrategy --config config.json
+fxtbot trade --freqaimodel ReinforcementLearner --strategy MyRLStrategy --config config.json
 ```
 
 where `ReinforcementLearner` will use the templated `ReinforcementLearner` from `freqai/prediction_models/ReinforcementLearner` (or a custom user defined one located in `user_data/freqaimodels`). The strategy, on the other hand, follows the same base [feature engineering](freqai-feature-engineering.md) with `feature_engineering_*` as a typical Regressor. The difference lies in the creation of the targets, Reinforcement Learning doesn't require them. However, FreqAI requires a default (neutral) value to be set in the action column:
@@ -145,19 +145,19 @@ As you begin to modify the strategy and the prediction model, you will quickly r
     The best reward functions are ones that are continuously differentiable, and well scaled. In other words, adding a single large negative penalty to a rare event is not a good idea, and the neural net will not be able to learn that function. Instead, it is better to add a small negative penalty to a common event. This will help the agent learn faster. Not only this, but you can help improve the continuity of your rewards/penalties by having them scale with severity according to some linear/exponential functions. In other words, you'd slowly scale the penalty as the duration of the trade increases. This is better than a single large penalty occurring at a single point in time.
 
 ```python
-from freqtrade.freqai.prediction_models.ReinforcementLearner import ReinforcementLearner
-from freqtrade.freqai.RL.Base5ActionRLEnv import Actions, Base5ActionRLEnv, Positions
+from fxtbot.freqai.prediction_models.ReinforcementLearner import ReinforcementLearner
+from fxtbot.freqai.RL.Base5ActionRLEnv import Actions, Base5ActionRLEnv, Positions
 
 
 class MyCoolRLModel(ReinforcementLearner):
     """
     User created RL prediction model.
 
-    Save this file to `freqtrade/user_data/freqaimodels`
+    Save this file to `fxtbot/user_data/freqaimodels`
 
     then use it with:
 
-    freqtrade trade --freqaimodel MyCoolRLModel --config config.json --strategy SomeCoolStrat
+    fxtbot trade --freqaimodel MyCoolRLModel --config config.json --strategy SomeCoolStrat
 
     Here the users can override any of the functions
     available in the `IFreqaiModel` inheritance tree. Most importantly for RL, this
@@ -171,6 +171,7 @@ class MyCoolRLModel(ReinforcementLearner):
     Another common override may be `def data_cleaning_predict()` where the user can
     take fine-tuned control over the data handling pipeline.
     """
+
     class MyRLEnv(Base5ActionRLEnv):
         """
         User made custom environment. This class inherits from BaseEnvironment and gym.Env.
@@ -182,6 +183,7 @@ class MyCoolRLModel(ReinforcementLearner):
         environment control features as possible. It is also designed to run quickly
         on small computers. This is a benchmark, it is *not* for live production.
         """
+
         def calculate_reward(self, action: int) -> float:
             # first, penalize if the action is not valid
             if not self._is_valid(action):
@@ -195,7 +197,7 @@ class MyCoolRLModel(ReinforcementLearner):
             # you can use feature values from dataframe
             # Assumes the shifted RSI indicator has been generated in the strategy.
             rsi_now = self.raw_features[f"%-rsi-period_10_shift-1_{pair}_"
-                            f"{self.config['timeframe']}"].iloc[self._current_tick]
+                                        f"{self.config['timeframe']}"].iloc[self._current_tick]
 
             # reward agent for entering trades
             if (action in (Actions.Long_enter.value, Actions.Short_enter.value)
@@ -216,8 +218,8 @@ class MyCoolRLModel(ReinforcementLearner):
             elif trade_duration > max_trade_duration:
                 factor *= 0.5
             # discourage sitting in position
-            if self._position in (Positions.Short, Positions.Long) and \
-            action == Actions.Neutral.value:
+            if self._position in (Positions.Short, Positions.Long) and
+                    action == Actions.Neutral.value:
                 return -1 * trade_duration / max_trade_duration
             # close long
             if action == Actions.Long_exit.value and self._position == Positions.Long:

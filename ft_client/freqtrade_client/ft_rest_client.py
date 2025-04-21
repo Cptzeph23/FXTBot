@@ -1,7 +1,7 @@
 """
 A Rest Client for Freqtrade bot
 
-Should not import anything from freqtrade,
+Should not import anything from fxtbot,
 so it can be used as a standalone script, and can be installed independently.
 """
 

@@ -17,7 +17,7 @@ from pathlib import Path
 # Change directory
 # Modify this cell to insure that the output shows the correct path.
 # Define all paths relative to the project root shown in the cell output
-project_root = "somedir/freqtrade"
+project_root = "somedir/fxtbot"
 i = 0
 try:
     os.chdir(project_root)
@@ -34,10 +34,8 @@ print(Path.cwd())
 
 ### Configure Freqtrade environment
 
-
 ```python
-from freqtrade.configuration import Configuration
-
+from fxtbot.configuration import Configuration
 
 # Customize these according to your needs.
 
@@ -56,12 +54,10 @@ data_location = config["datadir"]
 pair = "BTC/USDT"
 ```
 
-
 ```python
 # Load data using values set above
-from freqtrade.data.history import load_pair_history
-from freqtrade.enums import CandleType
-
+from fxtbot.data.history import load_pair_history
+from fxtbot.enums import CandleType
 
 candles = load_pair_history(
     datadir=data_location,
@@ -79,12 +75,10 @@ candles.head()
 ## Load and run strategy
 * Rerun each time the strategy file is changed
 
-
 ```python
 # Load strategy using values set above
-from freqtrade.data.dataprovider import DataProvider
-from freqtrade.resolvers import StrategyResolver
-
+from fxtbot.data.dataprovider import DataProvider
+from fxtbot.resolvers import StrategyResolver
 
 strategy = StrategyResolver.load_strategy(config)
 strategy.dp = DataProvider(config, None, None)
@@ -123,10 +117,8 @@ They will allow you to drill deeper into your results, and perform analysis whic
 
 Analyze a trades dataframe (also used below for plotting)
 
-
 ```python
-from freqtrade.data.btanalysis import load_backtest_data, load_backtest_stats
-
+from fxtbot.data.btanalysis import load_backtest_data, load_backtest_stats
 
 # if backtest_dir points to a directory, it'll automatically load the last backtest file.
 backtest_dir = config["user_data_dir"] / "backtest_results"
@@ -173,16 +165,14 @@ trades.groupby("pair")["exit_reason"].value_counts()
 
 ## Plotting daily profit / equity line
 
-
 ```python
 # Plotting equity line (starting with 0 on day 1 and adding daily profit for each backtested day)
 
 import pandas as pd
 import plotly.express as px
 
-from freqtrade.configuration import Configuration
-from freqtrade.data.btanalysis import load_backtest_stats
-
+from fxtbot.configuration import Configuration
+from fxtbot.data.btanalysis import load_backtest_stats
 
 # strategy = 'SampleStrategy'
 # config = Configuration.from_files(["user_data/config.json"])
@@ -202,10 +192,8 @@ fig.show()
 
 In case you did already some trading and want to analyze your performance
 
-
 ```python
-from freqtrade.data.btanalysis import load_trades_from_db
-
+from fxtbot.data.btanalysis import load_trades_from_db
 
 # Fetch trades from database
 trades = load_trades_from_db("sqlite:///tradesv3.sqlite")
@@ -219,10 +207,8 @@ This can be useful to find the best `max_open_trades` parameter, when used with 
 
 `analyze_trade_parallelism()` returns a timeseries dataframe with an "open_trades" column, specifying the number of open trades for each candle.
 
-
 ```python
-from freqtrade.data.btanalysis import analyze_trade_parallelism
-
+from fxtbot.data.btanalysis import analyze_trade_parallelism
 
 # Analyze the above
 parallel_trades = analyze_trade_parallelism(trades, "5m")
@@ -234,10 +220,8 @@ parallel_trades.plot()
 
 Freqtrade offers interactive plotting capabilities based on plotly.
 
-
 ```python
-from freqtrade.plot.plotting import generate_candlestick_graph
-
+from fxtbot.plot.plotting import generate_candlestick_graph
 
 # Limit graph period to keep plotly quick and reactive
 

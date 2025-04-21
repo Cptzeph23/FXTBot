@@ -95,19 +95,19 @@ Results will be located in `user_data/strategies/<strategyclassname>.py`.
 ### Sample usage of new-strategy
 
 ```bash
-freqtrade new-strategy --strategy AwesomeStrategy
+fxtbot new-strategy --strategy AwesomeStrategy
 ```
 
 With custom user directory
 
 ```bash
-freqtrade new-strategy --userdir ~/.freqtrade/ --strategy AwesomeStrategy
+fxtbot new-strategy --userdir ~/.fxtbot/ --strategy AwesomeStrategy
 ```
 
 Using the advanced template (populates all optional functions and methods)
 
 ```bash
-freqtrade new-strategy --strategy AwesomeStrategy --template advanced
+fxtbot new-strategy --strategy AwesomeStrategy --template advanced
 ```
 
 ## List Strategies

@@ -2,9 +2,9 @@
 services:
   freqtrade:
     image: freqtradeorg/freqtrade:stable
-    # image: freqtradeorg/freqtrade:develop
+    # image: freqtradeorg/fxtbot:develop
     # Use plotting image
-    # image: freqtradeorg/freqtrade:develop_plot
+    # image: freqtradeorg/fxtbot:develop_plot
     # # Enable GPU Image and GPU Resources (only relevant for freqAI)
     # # Make sure to uncomment the whole deploy section
     # deploy:
@@ -19,9 +19,9 @@ services:
     #   context: .
     #   dockerfile: "./docker/Dockerfile.custom"
     restart: unless-stopped
-    container_name: freqtrade
+    container_name: fxtbot
     volumes:
-      - "./user_data:/freqtrade/user_data"
+      - "./user_data:/fxtbot/user_data"
     # Expose api on port 8080 (localhost only)
     # Please read the https://www.freqtrade.io/en/stable/rest-api/ documentation
     # for more information.

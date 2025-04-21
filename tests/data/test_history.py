@@ -12,12 +12,12 @@ import pytest
 from pandas import DataFrame
 from pandas.testing import assert_frame_equal
 
-from freqtrade.configuration import TimeRange
-from freqtrade.constants import DATETIME_PRINT_FORMAT
-from freqtrade.data.converter import ohlcv_to_dataframe
-from freqtrade.data.history import get_datahandler
-from freqtrade.data.history.datahandlers.jsondatahandler import JsonDataHandler, JsonGzDataHandler
-from freqtrade.data.history.history_utils import (
+from fxtbot.configuration import TimeRange
+from fxtbot.constants import DATETIME_PRINT_FORMAT
+from fxtbot.data.converter import ohlcv_to_dataframe
+from fxtbot.data.history import get_datahandler
+from fxtbot.data.history.datahandlers.jsondatahandler import JsonDataHandler, JsonGzDataHandler
+from fxtbot.data.history.history_utils import (
     _download_pair_history,
     _download_trades_history,
     _load_cached_data_for_updating,
@@ -29,11 +29,11 @@ from freqtrade.data.history.history_utils import (
     refresh_data,
     validate_backtest_data,
 )
-from freqtrade.enums import CandleType, TradingMode
-from freqtrade.exchange import timeframe_to_minutes
-from freqtrade.misc import file_dump_json
-from freqtrade.resolvers import StrategyResolver
-from freqtrade.util import dt_ts, dt_utc
+from fxtbot.enums import CandleType, TradingMode
+from fxtbot.exchange import timeframe_to_minutes
+from fxtbot.misc import file_dump_json
+from fxtbot.resolvers import StrategyResolver
+from fxtbot.util import dt_ts, dt_utc
 from tests.conftest import (
     CURRENT_TEST_STRATEGY,
     EXMS,
@@ -75,7 +75,7 @@ def test_load_data_7min_timeframe(caplog, testdatadir) -> None:
     assert ld.empty
     assert log_has(
         "No history for UNITTEST/BTC, spot, 7m found. "
-        "Use `freqtrade download-data` to download the data",
+        "Use `fxtbot download-data` to download the data",
         caplog,
     )
 
@@ -103,7 +103,7 @@ def test_load_data_mark(ohlcv_history, mocker, caplog, testdatadir) -> None:
 
 def test_load_data_startup_candles(mocker, testdatadir) -> None:
     ltfmock = mocker.patch(
-        "freqtrade.data.history.datahandlers.featherdatahandler.FeatherDataHandler._ohlcv_load",
+        "fxtbot.data.history.datahandlers.featherdatahandler.FeatherDataHandler._ohlcv_load",
         MagicMock(return_value=DataFrame()),
     )
     timerange = TimeRange("date", None, 1510639620, 0)
@@ -137,7 +137,7 @@ def test_load_data_with_new_pair_1min(
     assert not file.is_file()
     assert log_has(
         f"No history for MEME/BTC, {candle_type}, 1m found. "
-        "Use `freqtrade download-data` to download the data",
+        "Use `fxtbot download-data` to download the data",
         caplog,
     )
 
@@ -161,25 +161,25 @@ def test_testdata_path(testdatadir) -> None:
 @pytest.mark.parametrize(
     "pair,timeframe,expected_result,candle_type",
     [
-        ("ETH/BTC", "5m", "freqtrade/hello/world/ETH_BTC-5m.json", ""),
-        ("ETH/USDT", "1M", "freqtrade/hello/world/ETH_USDT-1Mo.json", ""),
-        ("Fabric Token/ETH", "5m", "freqtrade/hello/world/Fabric_Token_ETH-5m.json", ""),
-        ("ETHH20", "5m", "freqtrade/hello/world/ETHH20-5m.json", ""),
-        (".XBTBON2H", "5m", "freqtrade/hello/world/_XBTBON2H-5m.json", ""),
-        ("ETHUSD.d", "5m", "freqtrade/hello/world/ETHUSD_d-5m.json", ""),
-        ("ACC_OLD/BTC", "5m", "freqtrade/hello/world/ACC_OLD_BTC-5m.json", ""),
-        ("ETH/BTC", "5m", "freqtrade/hello/world/futures/ETH_BTC-5m-mark.json", "mark"),
-        ("ACC_OLD/BTC", "5m", "freqtrade/hello/world/futures/ACC_OLD_BTC-5m-index.json", "index"),
+        ("ETH/BTC", "5m", "fxtbot/hello/world/ETH_BTC-5m.json", ""),
+        ("ETH/USDT", "1M", "fxtbot/hello/world/ETH_USDT-1Mo.json", ""),
+        ("Fabric Token/ETH", "5m", "fxtbot/hello/world/Fabric_Token_ETH-5m.json", ""),
+        ("ETHH20", "5m", "fxtbot/hello/world/ETHH20-5m.json", ""),
+        (".XBTBON2H", "5m", "fxtbot/hello/world/_XBTBON2H-5m.json", ""),
+        ("ETHUSD.d", "5m", "fxtbot/hello/world/ETHUSD_d-5m.json", ""),
+        ("ACC_OLD/BTC", "5m", "fxtbot/hello/world/ACC_OLD_BTC-5m.json", ""),
+        ("ETH/BTC", "5m", "fxtbot/hello/world/futures/ETH_BTC-5m-mark.json", "mark"),
+        ("ACC_OLD/BTC", "5m", "fxtbot/hello/world/futures/ACC_OLD_BTC-5m-index.json", "index"),
     ],
 )
 def test_json_pair_data_filename(pair, timeframe, expected_result, candle_type):
     fn = JsonDataHandler._pair_data_filename(
-        Path("freqtrade/hello/world"), pair, timeframe, CandleType.from_string(candle_type)
+        Path("fxtbot/hello/world"), pair, timeframe, CandleType.from_string(candle_type)
     )
     assert isinstance(fn, Path)
     assert fn == Path(expected_result)
     fn = JsonGzDataHandler._pair_data_filename(
-        Path("freqtrade/hello/world"),
+        Path("fxtbot/hello/world"),
         pair,
         timeframe,
         candle_type=CandleType.from_string(candle_type),
@@ -191,21 +191,21 @@ def test_json_pair_data_filename(pair, timeframe, expected_result, candle_type):
 @pytest.mark.parametrize(
     "pair,trading_mode,expected_result",
     [
-        ("ETH/BTC", "", "freqtrade/hello/world/ETH_BTC-trades.json"),
-        ("ETH/USDT:USDT", "futures", "freqtrade/hello/world/futures/ETH_USDT_USDT-trades.json"),
-        ("Fabric Token/ETH", "", "freqtrade/hello/world/Fabric_Token_ETH-trades.json"),
-        ("ETHH20", "", "freqtrade/hello/world/ETHH20-trades.json"),
-        (".XBTBON2H", "", "freqtrade/hello/world/_XBTBON2H-trades.json"),
-        ("ETHUSD.d", "", "freqtrade/hello/world/ETHUSD_d-trades.json"),
-        ("ACC_OLD_BTC", "", "freqtrade/hello/world/ACC_OLD_BTC-trades.json"),
+        ("ETH/BTC", "", "fxtbot/hello/world/ETH_BTC-trades.json"),
+        ("ETH/USDT:USDT", "futures", "fxtbot/hello/world/futures/ETH_USDT_USDT-trades.json"),
+        ("Fabric Token/ETH", "", "fxtbot/hello/world/Fabric_Token_ETH-trades.json"),
+        ("ETHH20", "", "fxtbot/hello/world/ETHH20-trades.json"),
+        (".XBTBON2H", "", "fxtbot/hello/world/_XBTBON2H-trades.json"),
+        ("ETHUSD.d", "", "fxtbot/hello/world/ETHUSD_d-trades.json"),
+        ("ACC_OLD_BTC", "", "fxtbot/hello/world/ACC_OLD_BTC-trades.json"),
     ],
 )
 def test_json_pair_trades_filename(pair, trading_mode, expected_result):
-    fn = JsonDataHandler._pair_trades_filename(Path("freqtrade/hello/world"), pair, trading_mode)
+    fn = JsonDataHandler._pair_trades_filename(Path("fxtbot/hello/world"), pair, trading_mode)
     assert isinstance(fn, Path)
     assert fn == Path(expected_result)
 
-    fn = JsonGzDataHandler._pair_trades_filename(Path("freqtrade/hello/world"), pair, trading_mode)
+    fn = JsonGzDataHandler._pair_trades_filename(Path("fxtbot/hello/world"), pair, trading_mode)
     assert isinstance(fn, Path)
     assert fn == Path(expected_result + ".gz")
 
@@ -354,7 +354,7 @@ def test_download_pair_history(
 
 def test_download_pair_history2(mocker, default_conf, testdatadir, ohlcv_history) -> None:
     json_dump_mock = mocker.patch(
-        "freqtrade.data.history.datahandlers.featherdatahandler.FeatherDataHandler.ohlcv_store",
+        "fxtbot.data.history.datahandlers.featherdatahandler.FeatherDataHandler.ohlcv_store",
         return_value=None,
     )
     exchange = get_patched_exchange(mocker, default_conf)
@@ -543,7 +543,7 @@ def test_refresh_backtest_ohlcv_data(
     mocker, default_conf, markets, caplog, testdatadir, trademode, callcount
 ):
     caplog.set_level(logging.DEBUG)
-    dl_mock = mocker.patch("freqtrade.data.history.history_utils._download_pair_history")
+    dl_mock = mocker.patch("fxtbot.data.history.history_utils._download_pair_history")
     mocker.patch(f"{EXMS}.markets", PropertyMock(return_value=markets))
 
     mocker.patch.object(Path, "exists", MagicMock(return_value=True))
@@ -573,7 +573,7 @@ def test_refresh_backtest_ohlcv_data(
 
 def test_download_data_no_markets(mocker, default_conf, caplog, testdatadir):
     dl_mock = mocker.patch(
-        "freqtrade.data.history.history_utils._download_pair_history", MagicMock()
+        "fxtbot.data.history.history_utils._download_pair_history", MagicMock()
     )
 
     ex = get_patched_exchange(mocker, default_conf)
@@ -597,7 +597,7 @@ def test_download_data_no_markets(mocker, default_conf, caplog, testdatadir):
 
 def test_refresh_backtest_trades_data(mocker, default_conf, markets, caplog, testdatadir):
     dl_mock = mocker.patch(
-        "freqtrade.data.history.history_utils._download_trades_history", MagicMock()
+        "fxtbot.data.history.history_utils._download_trades_history", MagicMock()
     )
     mocker.patch(f"{EXMS}.markets", PropertyMock(return_value=markets))
     mocker.patch.object(Path, "exists", MagicMock(return_value=True))

@@ -22,8 +22,8 @@ logger = logging.getLogger("ft_rest_client")
 
 def add_arguments(args: Any = None):
     parser = argparse.ArgumentParser(
-        prog="freqtrade-client",
-        description="Client for the freqtrade REST API",
+        prog="fxtbot-client",
+        description="Client for the fxtbot REST API",
     )
     parser.add_argument(
         "command", help="Positional argument defining the command to execute.", nargs="?"

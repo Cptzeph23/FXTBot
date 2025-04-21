@@ -5,9 +5,9 @@ from unittest.mock import MagicMock
 import pytest
 from sqlalchemy import select
 
-from freqtrade.constants import UNLIMITED_STAKE_AMOUNT
-from freqtrade.exceptions import DependencyException
-from freqtrade.persistence import Trade
+from fxtbot.constants import UNLIMITED_STAKE_AMOUNT
+from fxtbot.exceptions import DependencyException
+from fxtbot.persistence import Trade
 from tests.conftest import (
     EXMS,
     create_mock_trades,
@@ -66,7 +66,7 @@ def test_sync_wallet_at_boot(mocker, default_conf):
     assert freqtrade.wallets.get_used("GAS") == 0.1
     assert freqtrade.wallets.get_total("GAS") == 0.260439
     assert freqtrade.wallets.get_owned("GAS/USDT", "GAS") == 0.260439
-    update_mock = mocker.patch("freqtrade.wallets.Wallets._update_live")
+    update_mock = mocker.patch("fxtbot.wallets.Wallets._update_live")
     freqtrade.wallets.update(False)
     assert update_mock.call_count == 0
     freqtrade.wallets.update()
@@ -206,7 +206,7 @@ def test_validate_stake_amount(
     freqtrade = get_patched_freqtradebot(mocker, default_conf)
 
     mocker.patch(
-        "freqtrade.wallets.Wallets.get_available_stake_amount", return_value=stake_available
+        "fxtbot.wallets.Wallets.get_available_stake_amount", return_value=stake_available
     )
     res = freqtrade.wallets.validate_stake_amount(
         "XRP/USDT", stake_amount, min_stake, max_stake, trade_amount
@@ -235,12 +235,12 @@ def test_get_starting_balance(
     if available_capital:
         default_conf["available_capital"] = available_capital
     mocker.patch(
-        "freqtrade.persistence.models.Trade.get_total_closed_profit", return_value=closed_profit
+        "fxtbot.persistence.models.Trade.get_total_closed_profit", return_value=closed_profit
     )
     mocker.patch(
-        "freqtrade.persistence.models.Trade.total_open_trades_stakes", return_value=open_stakes
+        "fxtbot.persistence.models.Trade.total_open_trades_stakes", return_value=open_stakes
     )
-    mocker.patch("freqtrade.wallets.Wallets.get_free", return_value=free)
+    mocker.patch("fxtbot.wallets.Wallets.get_free", return_value=free)
 
     freqtrade = get_patched_freqtradebot(mocker, default_conf)
 
@@ -416,8 +416,8 @@ def test_sync_wallet_futures_dry(mocker, default_conf, fee):
 
 def test_check_exit_amount(mocker, default_conf, fee):
     freqtrade = get_patched_freqtradebot(mocker, default_conf)
-    update_mock = mocker.patch("freqtrade.wallets.Wallets.update")
-    total_mock = mocker.patch("freqtrade.wallets.Wallets.get_total", return_value=50.0)
+    update_mock = mocker.patch("fxtbot.wallets.Wallets.update")
+    total_mock = mocker.patch("fxtbot.wallets.Wallets.get_total", return_value=50.0)
 
     create_mock_trades(fee, is_short=None)
     trade = Trade.session.scalars(select(Trade)).first()
@@ -430,7 +430,7 @@ def test_check_exit_amount(mocker, default_conf, fee):
     update_mock.reset_mock()
     # Reduce returned amount to below the trade amount - which should
     # trigger a wallet update and return False, triggering "order refinding"
-    total_mock = mocker.patch("freqtrade.wallets.Wallets.get_total", return_value=40)
+    total_mock = mocker.patch("fxtbot.wallets.Wallets.get_total", return_value=40)
     assert freqtrade.wallets.check_exit_amount(trade) is False
     assert update_mock.call_count == 1
     assert total_mock.call_count == 2
@@ -440,7 +440,7 @@ def test_check_exit_amount_futures(mocker, default_conf, fee):
     default_conf["trading_mode"] = "futures"
     default_conf["margin_mode"] = "isolated"
     freqtrade = get_patched_freqtradebot(mocker, default_conf)
-    total_mock = mocker.patch("freqtrade.wallets.Wallets.get_total", return_value=50)
+    total_mock = mocker.patch("fxtbot.wallets.Wallets.get_total", return_value=50)
 
     create_mock_trades(fee, is_short=None)
     trade = Trade.session.scalars(select(Trade)).first()
@@ -450,7 +450,7 @@ def test_check_exit_amount_futures(mocker, default_conf, fee):
     assert freqtrade.wallets.check_exit_amount(trade) is True
     assert total_mock.call_count == 0
 
-    update_mock = mocker.patch("freqtrade.wallets.Wallets.update")
+    update_mock = mocker.patch("fxtbot.wallets.Wallets.update")
     trade.amount = 150
     # Reduce returned amount to below the trade amount - which should
     # trigger a wallet update and return False, triggering "order refinding"

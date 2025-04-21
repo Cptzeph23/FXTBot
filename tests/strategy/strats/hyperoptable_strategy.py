@@ -3,13 +3,13 @@
 from pandas import DataFrame
 from strategy_test_v3 import StrategyTestV3
 
-import freqtrade.vendor.qtpylib.indicators as qtpylib
-from freqtrade.strategy import BooleanParameter, DecimalParameter, IntParameter, RealParameter
+import fxtbot.vendor.qtpylib.indicators as qtpylib
+from fxtbot.strategy import BooleanParameter, DecimalParameter, IntParameter, RealParameter
 
 
 class HyperoptableStrategy(StrategyTestV3):
     """
-    Default Strategy provided by freqtrade bot.
+    Default Strategy provided by fxtbot bot.
     Please do not modify this strategy, it's  intended for internal use only.
     Please look at the SampleStrategy in the user_data/strategy directory
     or strategy repository https://github.com/freqtrade/freqtrade-strategies

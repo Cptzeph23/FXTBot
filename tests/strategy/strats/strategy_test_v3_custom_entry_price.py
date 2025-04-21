@@ -5,12 +5,12 @@ from datetime import datetime
 from pandas import DataFrame
 from strategy_test_v3 import StrategyTestV3
 
-from freqtrade.persistence import Trade
+from fxtbot.persistence import Trade
 
 
 class StrategyTestV3CustomEntryPrice(StrategyTestV3):
     """
-    Strategy used by tests freqtrade bot.
+    Strategy used by tests fxtbot bot.
     Please do not modify this strategy, it's  intended for internal use only.
     Please look at the SampleStrategy in the user_data/strategy directory
     or strategy repository https://github.com/freqtrade/freqtrade-strategies

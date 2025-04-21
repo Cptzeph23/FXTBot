@@ -9,7 +9,7 @@ from zipfile import ZipFile
 
 import pytest
 
-from freqtrade.commands import (
+from fxtbot.commands import (
     start_backtesting_show,
     start_convert_data,
     start_convert_db,
@@ -34,18 +34,18 @@ from freqtrade.commands import (
     start_trading,
     start_webserver,
 )
-from freqtrade.commands.deploy_ui import (
+from fxtbot.commands.deploy_ui import (
     clean_ui_subdir,
     download_and_install_ui,
     get_ui_download_url,
     read_ui_version,
 )
-from freqtrade.configuration import setup_utils_configuration
-from freqtrade.enums import RunMode
-from freqtrade.exceptions import OperationalException
-from freqtrade.persistence.models import init_db
-from freqtrade.persistence.pairlock_middleware import PairLocks
-from freqtrade.util import dt_utc
+from fxtbot.configuration import setup_utils_configuration
+from fxtbot.enums import RunMode
+from fxtbot.exceptions import OperationalException
+from fxtbot.persistence.models import init_db
+from fxtbot.persistence.pairlock_middleware import PairLocks
+from fxtbot.util import dt_utc
 from tests.conftest import (
     CURRENT_TEST_STRATEGY,
     EXMS,
@@ -83,11 +83,11 @@ def test_setup_utils_configuration():
 
 
 def test_start_trading_fail(mocker, caplog):
-    mocker.patch("freqtrade.worker.Worker.run", MagicMock(side_effect=OperationalException))
+    mocker.patch("fxtbot.worker.Worker.run", MagicMock(side_effect=OperationalException))
 
-    mocker.patch("freqtrade.worker.Worker.__init__", MagicMock(return_value=None))
+    mocker.patch("fxtbot.worker.Worker.__init__", MagicMock(return_value=None))
 
-    exitmock = mocker.patch("freqtrade.worker.Worker.exit", MagicMock())
+    exitmock = mocker.patch("fxtbot.worker.Worker.exit", MagicMock())
     args = ["trade", "-c", "tests/testdata/testconfigs/main_test_config.json"]
     with pytest.raises(OperationalException):
         start_trading(get_args(args))
@@ -95,7 +95,7 @@ def test_start_trading_fail(mocker, caplog):
 
     exitmock.reset_mock()
     caplog.clear()
-    mocker.patch("freqtrade.worker.Worker.__init__", MagicMock(side_effect=OperationalException))
+    mocker.patch("fxtbot.worker.Worker.__init__", MagicMock(side_effect=OperationalException))
     with pytest.raises(OperationalException):
         start_trading(get_args(args))
     assert exitmock.call_count == 0
@@ -103,7 +103,7 @@ def test_start_trading_fail(mocker, caplog):
 
 def test_start_webserver(mocker, caplog):
     api_server_mock = mocker.patch(
-        "freqtrade.rpc.api_server.ApiServer",
+        "fxtbot.rpc.api_server.ApiServer",
     )
 
     args = ["webserver", "-c", "tests/testdata/testconfigs/main_test_config.json"]
@@ -574,12 +574,12 @@ def test_create_datadir_failed(caplog):
 
 def test_create_datadir(mocker):
     cud = mocker.patch(
-        "freqtrade.configuration.directory_operations.create_userdata_dir", MagicMock()
+        "fxtbot.configuration.directory_operations.create_userdata_dir", MagicMock()
     )
     csf = mocker.patch(
-        "freqtrade.configuration.directory_operations.copy_sample_files", MagicMock()
+        "fxtbot.configuration.directory_operations.copy_sample_files", MagicMock()
     )
-    args = ["create-userdir", "--userdir", "/temp/freqtrade/test"]
+    args = ["create-userdir", "--userdir", "/temp/fxtbot/test"]
     start_create_userdir(get_args(args))
 
     assert cud.call_count == 1
@@ -634,13 +634,13 @@ def test_start_new_strategy_no_arg():
 
 
 def test_start_install_ui(mocker):
-    clean_mock = mocker.patch("freqtrade.commands.deploy_ui.clean_ui_subdir")
+    clean_mock = mocker.patch("fxtbot.commands.deploy_ui.clean_ui_subdir")
     get_url_mock = mocker.patch(
-        "freqtrade.commands.deploy_ui.get_ui_download_url",
+        "fxtbot.commands.deploy_ui.get_ui_download_url",
         return_value=("https://example.com/whatever", "0.0.1"),
     )
-    download_mock = mocker.patch("freqtrade.commands.deploy_ui.download_and_install_ui")
-    mocker.patch("freqtrade.commands.deploy_ui.read_ui_version", return_value=None)
+    download_mock = mocker.patch("fxtbot.commands.deploy_ui.download_and_install_ui")
+    mocker.patch("fxtbot.commands.deploy_ui.read_ui_version", return_value=None)
     args = [
         "install-ui",
     ]
@@ -664,13 +664,13 @@ def test_start_install_ui(mocker):
 
 
 def test_clean_ui_subdir(mocker, tmp_path, caplog):
-    mocker.patch("freqtrade.commands.deploy_ui.Path.is_dir", side_effect=[True, True])
-    mocker.patch("freqtrade.commands.deploy_ui.Path.is_file", side_effect=[False, True])
-    rd_mock = mocker.patch("freqtrade.commands.deploy_ui.Path.rmdir")
-    ul_mock = mocker.patch("freqtrade.commands.deploy_ui.Path.unlink")
+    mocker.patch("fxtbot.commands.deploy_ui.Path.is_dir", side_effect=[True, True])
+    mocker.patch("fxtbot.commands.deploy_ui.Path.is_file", side_effect=[False, True])
+    rd_mock = mocker.patch("fxtbot.commands.deploy_ui.Path.rmdir")
+    ul_mock = mocker.patch("fxtbot.commands.deploy_ui.Path.unlink")
 
     mocker.patch(
-        "freqtrade.commands.deploy_ui.Path.glob",
+        "fxtbot.commands.deploy_ui.Path.glob",
         return_value=[Path("test1"), Path("test2"), Path(".gitkeep")],
     )
     folder = tmp_path / "uitests"
@@ -690,10 +690,10 @@ def test_download_and_install_ui(mocker, tmp_path):
     file_like_object.seek(0)
     requests_mock.content = file_like_object.read()
 
-    mocker.patch("freqtrade.commands.deploy_ui.requests.get", return_value=requests_mock)
+    mocker.patch("fxtbot.commands.deploy_ui.requests.get", return_value=requests_mock)
 
-    mocker.patch("freqtrade.commands.deploy_ui.Path.is_dir", side_effect=[True, False])
-    wb_mock = mocker.patch("freqtrade.commands.deploy_ui.Path.write_bytes")
+    mocker.patch("fxtbot.commands.deploy_ui.Path.is_dir", side_effect=[True, False])
+    wb_mock = mocker.patch("fxtbot.commands.deploy_ui.Path.write_bytes")
 
     folder = tmp_path / "uitests_dl"
     folder.mkdir(exist_ok=True)
@@ -728,7 +728,7 @@ def test_get_ui_download_url(mocker):
         [{"browser_download_url": "http://download.zip"}],
     ]
     response.json = MagicMock(side_effect=responses)
-    get_mock = mocker.patch("freqtrade.commands.deploy_ui.requests.get", return_value=response)
+    get_mock = mocker.patch("fxtbot.commands.deploy_ui.requests.get", return_value=response)
     x, last_version = get_ui_download_url(None, False)
     assert get_mock.call_count == 2
     assert last_version == "0.0.1"
@@ -762,7 +762,7 @@ def test_get_ui_download_url_direct(mocker):
             },
         ]
     )
-    get_mock = mocker.patch("freqtrade.commands.deploy_ui.requests.get", return_value=response)
+    get_mock = mocker.patch("fxtbot.commands.deploy_ui.requests.get", return_value=response)
     x, last_version = get_ui_download_url(None, False)
     assert get_mock.call_count == 1
     assert last_version == "0.0.2"
@@ -780,7 +780,7 @@ def test_get_ui_download_url_direct(mocker):
 
 def test_download_data_keyboardInterrupt(mocker, markets):
     dl_mock = mocker.patch(
-        "freqtrade.data.history.download_data_main",
+        "fxtbot.data.history.download_data_main",
         MagicMock(side_effect=KeyboardInterrupt),
     )
     patch_exchange(mocker)
@@ -810,7 +810,7 @@ def test_download_data_keyboardInterrupt(mocker, markets):
 def test_download_data_timerange(mocker, markets, time_machine, time, tzoffset):
     time_machine.move_to(f"2024-11-01 {time}:00 {tzoffset}")
     dl_mock = mocker.patch(
-        "freqtrade.data.history.history_utils.refresh_backtest_ohlcv_data",
+        "fxtbot.data.history.history_utils.refresh_backtest_ohlcv_data",
         MagicMock(return_value=["ETH/BTC", "XRP/BTC"]),
     )
     patch_exchange(mocker)
@@ -873,7 +873,7 @@ def test_download_data_timerange(mocker, markets, time_machine, time, tzoffset):
 
 def test_download_data_no_exchange(mocker):
     mocker.patch(
-        "freqtrade.data.history.history_utils.refresh_backtest_ohlcv_data",
+        "fxtbot.data.history.history_utils.refresh_backtest_ohlcv_data",
         MagicMock(return_value=["ETH/BTC", "XRP/BTC"]),
     )
     patch_exchange(mocker)
@@ -891,7 +891,7 @@ def test_download_data_no_exchange(mocker):
 
 def test_download_data_no_pairs(mocker):
     mocker.patch(
-        "freqtrade.data.history.history_utils.refresh_backtest_ohlcv_data",
+        "fxtbot.data.history.history_utils.refresh_backtest_ohlcv_data",
         MagicMock(return_value=["ETH/BTC", "XRP/BTC"]),
     )
     patch_exchange(mocker)
@@ -911,7 +911,7 @@ def test_download_data_no_pairs(mocker):
 
 def test_download_data_all_pairs(mocker, markets):
     dl_mock = mocker.patch(
-        "freqtrade.data.history.history_utils.refresh_backtest_ohlcv_data",
+        "fxtbot.data.history.history_utils.refresh_backtest_ohlcv_data",
         MagicMock(return_value=["ETH/BTC", "XRP/BTC"]),
     )
     patch_exchange(mocker)
@@ -942,11 +942,11 @@ def test_download_data_all_pairs(mocker, markets):
 
 def test_download_data_trades(mocker):
     dl_mock = mocker.patch(
-        "freqtrade.data.history.history_utils.refresh_backtest_trades_data",
+        "fxtbot.data.history.history_utils.refresh_backtest_trades_data",
         MagicMock(return_value=[]),
     )
     convert_mock = mocker.patch(
-        "freqtrade.data.history.history_utils.convert_trades_to_ohlcv", MagicMock(return_value=[])
+        "fxtbot.data.history.history_utils.convert_trades_to_ohlcv", MagicMock(return_value=[])
     )
     patch_exchange(mocker)
     mocker.patch(f"{EXMS}.get_markets", return_value={"ETH/BTC": {}, "XRP/BTC": {}})
@@ -1003,7 +1003,7 @@ def test_download_data_data_invalid(mocker):
 
 def test_start_convert_trades(mocker):
     convert_mock = mocker.patch(
-        "freqtrade.data.converter.convert_trades_to_ohlcv", MagicMock(return_value=[])
+        "fxtbot.data.converter.convert_trades_to_ohlcv", MagicMock(return_value=[])
     )
     patch_exchange(mocker)
     mocker.patch(f"{EXMS}.get_markets")
@@ -1195,7 +1195,7 @@ def test_hyperopt_list(mocker, capsys, caplog, tmp_path):
     saved_hyperopt_results = hyperopt_test_result()
     csv_file = tmp_path / "test.csv"
     mocker.patch(
-        "freqtrade.optimize.hyperopt_tools.HyperoptTools._test_hyperopt_results_exist",
+        "fxtbot.optimize.hyperopt_tools.HyperoptTools._test_hyperopt_results_exist",
         return_value=True,
     )
 
@@ -1203,7 +1203,7 @@ def test_hyperopt_list(mocker, capsys, caplog, tmp_path):
         yield from [saved_hyperopt_results]
 
     mocker.patch(
-        "freqtrade.optimize.hyperopt_tools.HyperoptTools._read_results", side_effect=fake_iterator
+        "fxtbot.optimize.hyperopt_tools.HyperoptTools._read_results", side_effect=fake_iterator
     )
 
     args = [
@@ -1568,7 +1568,7 @@ def test_hyperopt_list(mocker, capsys, caplog, tmp_path):
 def test_hyperopt_show(mocker, capsys):
     saved_hyperopt_results = hyperopt_test_result()
     mocker.patch(
-        "freqtrade.optimize.hyperopt_tools.HyperoptTools._test_hyperopt_results_exist",
+        "fxtbot.optimize.hyperopt_tools.HyperoptTools._test_hyperopt_results_exist",
         return_value=True,
     )
 
@@ -1576,9 +1576,9 @@ def test_hyperopt_show(mocker, capsys):
         yield from [saved_hyperopt_results]
 
     mocker.patch(
-        "freqtrade.optimize.hyperopt_tools.HyperoptTools._read_results", side_effect=fake_iterator
+        "fxtbot.optimize.hyperopt_tools.HyperoptTools._read_results", side_effect=fake_iterator
     )
-    mocker.patch("freqtrade.optimize.optimize_reports.show_backtest_result")
+    mocker.patch("fxtbot.optimize.optimize_reports.show_backtest_result")
 
     args = [
         "hyperopt-show",
@@ -1635,8 +1635,8 @@ def test_hyperopt_show(mocker, capsys):
 
 
 def test_convert_data(mocker, testdatadir):
-    ohlcv_mock = mocker.patch("freqtrade.data.converter.convert_ohlcv_format")
-    trades_mock = mocker.patch("freqtrade.data.converter.convert_trades_format")
+    ohlcv_mock = mocker.patch("fxtbot.data.converter.convert_ohlcv_format")
+    trades_mock = mocker.patch("fxtbot.data.converter.convert_trades_format")
     args = [
         "convert-data",
         "--format-from",
@@ -1657,8 +1657,8 @@ def test_convert_data(mocker, testdatadir):
 
 
 def test_convert_data_trades(mocker, testdatadir):
-    ohlcv_mock = mocker.patch("freqtrade.data.converter.convert_ohlcv_format")
-    trades_mock = mocker.patch("freqtrade.data.converter.convert_trades_format")
+    ohlcv_mock = mocker.patch("fxtbot.data.converter.convert_ohlcv_format")
+    trades_mock = mocker.patch("fxtbot.data.converter.convert_trades_format")
     args = [
         "convert-trade-data",
         "--format-from",
@@ -1798,7 +1798,7 @@ def test_start_list_trades_data(testdatadir, capsys):
 
 @pytest.mark.usefixtures("init_persistence")
 def test_show_trades(mocker, fee, capsys, caplog):
-    mocker.patch("freqtrade.persistence.init_db")
+    mocker.patch("fxtbot.persistence.init_db")
     create_mock_trades(fee, False)
     args = ["show-trades", "--db-url", "sqlite:///"]
     pargs = get_args(args)
@@ -1830,7 +1830,7 @@ def test_show_trades(mocker, fee, capsys, caplog):
 
 
 def test_backtesting_show(mocker, testdatadir, capsys):
-    sbr = mocker.patch("freqtrade.optimize.optimize_reports.show_backtest_results")
+    sbr = mocker.patch("fxtbot.optimize.optimize_reports.show_backtest_results")
     args = [
         "backtesting-show",
         "--export-filename",
@@ -1876,7 +1876,7 @@ def test_start_convert_db(fee, tmp_path):
 
 
 def test_start_strategy_updater(mocker, tmp_path):
-    sc_mock = mocker.patch("freqtrade.commands.strategy_utils_commands.start_conversion")
+    sc_mock = mocker.patch("fxtbot.commands.strategy_utils_commands.start_conversion")
     teststrats = Path(__file__).parent.parent / "strategy/strats"
     args = [
         "strategy-updater",

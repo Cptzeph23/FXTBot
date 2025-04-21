@@ -33,7 +33,7 @@ You can use a relative timerange (`--days 20`) or an absolute starting point (`-
 A very simple command (assuming an available `config.json` file) can look as follows.
 
 ```bash
-freqtrade download-data --exchange binance
+fxtbot download-data --exchange binance
 ```
 
 This will download historical candle (OHLCV) data for all the currency pairs defined in the configuration.
@@ -41,13 +41,13 @@ This will download historical candle (OHLCV) data for all the currency pairs def
 Alternatively, specify the pairs directly
 
 ```bash
-freqtrade download-data --exchange binance --pairs ETH/USDT XRP/USDT BTC/USDT
+fxtbot download-data --exchange binance --pairs ETH/USDT XRP/USDT BTC/USDT
 ```
 
 or as regex (in this case, to download all active USDT pairs)
 
 ```bash
-freqtrade download-data --exchange binance --pairs ".*/USDT"
+fxtbot download-data --exchange binance --pairs ".*/USDT"
 ```
 
 ### Other Notes
@@ -224,7 +224,7 @@ You can get a list of downloaded data using the `list-data` sub-command.
 ### Example list-data
 
 ```bash
-> freqtrade list-data --userdir ~/.freqtrade/user_data/
+> fxtbot list-data --userdir ~/.fxtbot/user_data/
 
               Found 33 pair / timeframe combinations.
 ┏━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━┓
@@ -271,7 +271,7 @@ If `--convert` is also provided, the resample step will happen automatically and
 Example call:
 
 ```bash
-freqtrade download-data --exchange kraken --pairs XRP/EUR ETH/EUR --days 20 --dl-trades
+fxtbot download-data --exchange kraken --pairs XRP/EUR ETH/EUR --days 20 --dl-trades
 ```
 
 !!! Note

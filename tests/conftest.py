@@ -13,17 +13,17 @@ import pandas as pd
 import pytest
 from xdist.scheduler.loadscope import LoadScopeScheduling
 
-from freqtrade import constants
-from freqtrade.commands import Arguments
-from freqtrade.data.converter import ohlcv_to_dataframe, trades_list_to_df
-from freqtrade.edge import PairInfo
-from freqtrade.enums import CandleType, MarginMode, RunMode, SignalDirection, TradingMode
-from freqtrade.exchange import Exchange, timeframe_to_minutes, timeframe_to_seconds
-from freqtrade.freqtradebot import FreqtradeBot
-from freqtrade.persistence import LocalTrade, Order, Trade, init_db
-from freqtrade.resolvers import ExchangeResolver
-from freqtrade.util import dt_now, dt_ts
-from freqtrade.worker import Worker
+from fxtbot import constants
+from fxtbot.commands import Arguments
+from fxtbot.data.converter import ohlcv_to_dataframe, trades_list_to_df
+from fxtbot.edge import PairInfo
+from fxtbot.enums import CandleType, MarginMode, RunMode, SignalDirection, TradingMode
+from fxtbot.exchange import Exchange, timeframe_to_minutes, timeframe_to_seconds
+from fxtbot.freqtradebot import FreqtradeBot
+from fxtbot.persistence import LocalTrade, Order, Trade, init_db
+from fxtbot.resolvers import ExchangeResolver
+from fxtbot.util import dt_now, dt_ts
+from fxtbot.worker import Worker
 from tests.conftest_trades import (
     leverage_trade,
     mock_trade_1,
@@ -53,7 +53,7 @@ np.seterr(all="raise")
 
 CURRENT_TEST_STRATEGY = "StrategyTestV3"
 TRADE_SIDES = ("long", "short")
-EXMS = "freqtrade.exchange.exchange.Exchange"
+EXMS = "fxtbot.exchange.exchange.Exchange"
 
 
 def pytest_addoption(parser):
@@ -231,7 +231,7 @@ def get_mock_coro(return_value=None, side_effect=None):
 
 def patched_configuration_load_config_file(mocker, config) -> None:
     mocker.patch(
-        "freqtrade.configuration.load_config.load_config_file", lambda *args, **kwargs: config
+        "fxtbot.configuration.load_config.load_config_file", lambda *args, **kwargs: config
     )
 
 
@@ -245,7 +245,7 @@ def patch_exchange(
     mocker.patch(f"{EXMS}.precisionMode", PropertyMock(return_value=2))
     mocker.patch(f"{EXMS}.precision_mode_price", PropertyMock(return_value=2))
     # Temporary patch ...
-    mocker.patch("freqtrade.exchange.bybit.Bybit.cache_leverage_tiers")
+    mocker.patch("fxtbot.exchange.bybit.Bybit.cache_leverage_tiers")
 
     if mock_markets:
         mocker.patch(f"{EXMS}._load_async_markets", return_value={})
@@ -255,7 +255,7 @@ def patch_exchange(
 
     if mock_supported_modes:
         mocker.patch(
-            f"freqtrade.exchange.{exchange}.{exchange.capitalize()}"
+            f"fxtbot.exchange.{exchange}.{exchange.capitalize()}"
             "._supported_trading_mode_margin_pairs",
             PropertyMock(
                 return_value=[
@@ -288,12 +288,12 @@ def get_patched_exchange(
 
 
 def patch_wallet(mocker, free=999.9) -> None:
-    mocker.patch("freqtrade.wallets.Wallets.get_free", MagicMock(return_value=free))
+    mocker.patch("fxtbot.wallets.Wallets.get_free", MagicMock(return_value=free))
 
 
 def patch_whitelist(mocker, conf) -> None:
     mocker.patch(
-        "freqtrade.freqtradebot.FreqtradeBot._refresh_active_whitelist",
+        "fxtbot.freqtradebot.FreqtradeBot._refresh_active_whitelist",
         MagicMock(return_value=conf["exchange"]["pair_whitelist"]),
     )
 
@@ -305,7 +305,7 @@ def patch_edge(mocker) -> None:
     # "NEO/BTC"
 
     mocker.patch(
-        "freqtrade.edge.Edge._cached_pairs",
+        "fxtbot.edge.Edge._cached_pairs",
         mocker.PropertyMock(
             return_value={
                 "NEO/BTC": PairInfo(-0.20, 0.66, 3.71, 0.50, 1.71, 10, 25),
@@ -313,7 +313,7 @@ def patch_edge(mocker) -> None:
             }
         ),
     )
-    mocker.patch("freqtrade.edge.Edge.calculate", MagicMock(return_value=True))
+    mocker.patch("fxtbot.edge.Edge.calculate", MagicMock(return_value=True))
 
 
 # Functions for recurrent object patching
@@ -326,13 +326,13 @@ def patch_freqtradebot(mocker, config) -> None:
     :param config: Config to pass to the bot
     :return: None
     """
-    mocker.patch("freqtrade.freqtradebot.RPCManager", MagicMock())
+    mocker.patch("fxtbot.freqtradebot.RPCManager", MagicMock())
     patch_exchange(mocker)
-    mocker.patch("freqtrade.freqtradebot.RPCManager._init", MagicMock())
-    mocker.patch("freqtrade.freqtradebot.RPCManager.send_msg", MagicMock())
+    mocker.patch("fxtbot.freqtradebot.RPCManager._init", MagicMock())
+    mocker.patch("fxtbot.freqtradebot.RPCManager.send_msg", MagicMock())
     patch_whitelist(mocker, config)
-    mocker.patch("freqtrade.freqtradebot.ExternalMessageConsumer")
-    mocker.patch("freqtrade.configuration.config_validation._validate_consumers")
+    mocker.patch("fxtbot.freqtradebot.ExternalMessageConsumer")
+    mocker.patch("fxtbot.configuration.config_validation._validate_consumers")
 
 
 def get_patched_freqtradebot(mocker, config) -> FreqtradeBot:
@@ -515,7 +515,7 @@ def create_mock_trades_usdt(fee, is_short: bool | None = False, use_db: bool = T
 
 @pytest.fixture(autouse=True)
 def patch_gc(mocker) -> None:
-    mocker.patch("freqtrade.main.gc_set_threshold")
+    mocker.patch("fxtbot.main.gc_set_threshold")
 
 
 def is_arm() -> bool:
@@ -545,7 +545,7 @@ def patch_torch_initlogs(mocker) -> None:
 @pytest.fixture(autouse=True)
 def user_dir(mocker, tmp_path) -> Path:
     user_dir = tmp_path / "user_data"
-    mocker.patch("freqtrade.configuration.configuration.create_userdata_dir", return_value=user_dir)
+    mocker.patch("fxtbot.configuration.configuration.create_userdata_dir", return_value=user_dir)
     return user_dir
 
 
@@ -573,7 +573,7 @@ def patch_coingecko(mocker) -> None:
         ]
     )
     mocker.patch.multiple(
-        "freqtrade.rpc.fiat_convert.FtCoinGeckoApi",
+        "fxtbot.rpc.fiat_convert.FtCoinGeckoApi",
         get_price=tickermock,
         get_coins_list=listmock,
     )

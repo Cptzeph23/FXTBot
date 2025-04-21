@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from freqtrade.persistence.trade_model import LocalTrade, Trade
+from fxtbot.persistence.trade_model import LocalTrade, Trade
 from tests.conftest import create_mock_trades_usdt
 
 

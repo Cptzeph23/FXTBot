@@ -86,7 +86,8 @@ This function needs to return a floating point number (`float`). Smaller numbers
 To override a pre-defined space (`roi_space`, `generate_roi_table`, `stoploss_space`, `trailing_space`, `max_open_trades_space`), define a nested class called Hyperopt and define the required spaces as follows:
 
 ```python
-from freqtrade.optimize.space import Categorical, Dimension, Integer, SKDecimal
+from fxtbot.optimize.space import Categorical, Dimension, Integer, SKDecimal
+
 
 class MyAwesomeStrategy(IStrategy):
     class HyperOpt:
@@ -106,7 +107,6 @@ class MyAwesomeStrategy(IStrategy):
             ]
 
         def generate_roi_table(params: Dict) -> dict[int, float]:
-
             roi_table = {}
             roi_table[0] = params['roi_p1'] + params['roi_p2'] + params['roi_p3']
             roi_table[params['roi_t3']] = params['roi_p1'] + params['roi_p2']
@@ -130,7 +130,7 @@ class MyAwesomeStrategy(IStrategy):
                 SKDecimal(0.001, 0.1, decimals=3, name='trailing_stop_positive_offset_p1'),
 
                 Categorical([True, False], name='trailing_only_offset_is_reached'),
-        ]
+            ]
 
         # Define a custom max_open_trades space
         def max_open_trades_space(self) -> List[Dimension]:

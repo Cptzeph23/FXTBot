@@ -67,7 +67,7 @@ class ProducerStrategy(IStrategy):
     #...
     def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
         """
-        Calculate indicators in the standard freqtrade way which can then be broadcast to other instances
+        Calculate indicators in the standard fxtbot way which can then be broadcast to other instances
         """
         dataframe['rsi'] = ta.RSI(dataframe)
         bollinger = qtpylib.bollinger_bands(qtpylib.typical_price(dataframe), window=20, stds=2)
@@ -111,7 +111,7 @@ class ConsumerStrategy(IStrategy):
 
     def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
         """
-        Use the websocket api to get pre-populated indicators from another freqtrade instance.
+        Use the websocket api to get pre-populated indicators from another fxtbot instance.
         Use `self.dp.get_producer_df(pair)` to get the dataframe
         """
         pair = metadata['pair']

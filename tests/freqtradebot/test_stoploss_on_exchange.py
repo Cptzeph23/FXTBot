@@ -5,12 +5,12 @@ from unittest.mock import ANY, MagicMock
 import pytest
 from sqlalchemy import select
 
-from freqtrade.enums import ExitCheckTuple, ExitType, RPCMessageType
-from freqtrade.exceptions import ExchangeError, InsufficientFundsError, InvalidOrderException
-from freqtrade.freqtradebot import FreqtradeBot
-from freqtrade.persistence import Order, Trade
-from freqtrade.persistence.models import PairLock
-from freqtrade.util.datetime_helpers import dt_now
+from fxtbot.enums import ExitCheckTuple, ExitType, RPCMessageType
+from fxtbot.exceptions import ExchangeError, InsufficientFundsError, InvalidOrderException
+from fxtbot.freqtradebot import FreqtradeBot
+from fxtbot.persistence import Order, Trade
+from fxtbot.persistence.models import PairLock
+from fxtbot.util.datetime_helpers import dt_now
 from tests.conftest import (
     EXMS,
     get_patched_freqtradebot,
@@ -36,7 +36,7 @@ def test_add_stoploss_on_exchange(mocker, default_conf_usdt, limit_order, is_sho
         get_fee=fee,
     )
     order = limit_order[entry_side(is_short)]
-    mocker.patch("freqtrade.freqtradebot.FreqtradeBot.handle_trade", MagicMock(return_value=True))
+    mocker.patch("fxtbot.freqtradebot.FreqtradeBot.handle_trade", MagicMock(return_value=True))
     mocker.patch(f"{EXMS}.fetch_order", return_value=order)
     mocker.patch(f"{EXMS}.get_trades_for_order", return_value=[])
 
@@ -509,7 +509,7 @@ def test_create_stoploss_order_insufficient_funds(
     exit_order = limit_order[exit_side(is_short)]["id"]
     freqtrade = get_patched_freqtradebot(mocker, default_conf_usdt)
 
-    mock_insuf = mocker.patch("freqtrade.freqtradebot.FreqtradeBot.handle_insufficient_funds")
+    mock_insuf = mocker.patch("fxtbot.freqtradebot.FreqtradeBot.handle_insufficient_funds")
     mocker.patch.multiple(
         EXMS,
         fetch_ticker=MagicMock(return_value={"bid": 1.9, "ask": 2.2, "last": 1.9}),
@@ -1178,7 +1178,7 @@ def test_execute_trade_exit_sloe_cancel_exception(
 ) -> None:
     freqtrade = get_patched_freqtradebot(mocker, default_conf_usdt)
     mocker.patch(f"{EXMS}.cancel_stoploss_order", side_effect=InvalidOrderException())
-    mocker.patch("freqtrade.wallets.Wallets.get_free", MagicMock(return_value=300))
+    mocker.patch("fxtbot.wallets.Wallets.get_free", MagicMock(return_value=300))
     create_order_mock = MagicMock(
         side_effect=[
             {"id": "12345554"},
@@ -1228,7 +1228,7 @@ def test_execute_trade_exit_with_stoploss_on_exchange(
     rpc_mock = patch_RPCManager(mocker)
     patch_exchange(mocker)
     stoploss = MagicMock(return_value={"id": 123, "status": "open", "info": {"foo": "bar"}})
-    mocker.patch("freqtrade.freqtradebot.FreqtradeBot.handle_order_fee")
+    mocker.patch("fxtbot.freqtradebot.FreqtradeBot.handle_order_fee")
 
     cancel_order = MagicMock(return_value=True)
     mocker.patch.multiple(

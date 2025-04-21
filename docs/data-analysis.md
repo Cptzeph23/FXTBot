@@ -80,7 +80,7 @@ from pathlib import Path
 # Change directory
 # Modify this cell to insure that the output shows the correct path.
 # Define all paths relative to the project root shown in the cell output
-project_root = "somedir/freqtrade"
+project_root = "somedir/fxtbot"
 i=0
 try:
     os.chdir(project_root)

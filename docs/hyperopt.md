@@ -486,7 +486,7 @@ Because hyperopt tries a lot of combinations to find the best parameters it will
 We strongly recommend to use `screen` or `tmux` to prevent any connection loss.
 
 ```bash
-freqtrade hyperopt --config config.json --hyperopt-loss <hyperoptlossname> --strategy <strategyname> -e 500 --spaces all
+fxtbot hyperopt --config config.json --hyperopt-loss <hyperoptlossname> --strategy <strategyname> -e 500 --spaces all
 ```
 
 The `-e` option will set how many evaluations hyperopt will do. Since hyperopt uses Bayesian search, running too many epochs at once may not produce greater results. Experience has shown that best results are usually not improving much after 500-1000 epochs.  
@@ -512,7 +512,7 @@ For example, to use one month of data, pass `--timerange 20210101-20210201` (fro
 Full command:
 
 ```bash
-freqtrade hyperopt --strategy <strategyname> --timerange 20210101-20210201
+fxtbot hyperopt --strategy <strategyname> --timerange 20210101-20210201
 ```
 
 ### Running Hyperopt with Smaller Search Space

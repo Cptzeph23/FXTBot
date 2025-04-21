@@ -4,10 +4,10 @@ from unittest.mock import MagicMock
 import pytest
 from pandas import DataFrame, Timestamp
 
-from freqtrade.data.dataprovider import DataProvider
-from freqtrade.enums import CandleType, RunMode
-from freqtrade.exceptions import ExchangeError, OperationalException
-from freqtrade.plugins.pairlistmanager import PairListManager
+from fxtbot.data.dataprovider import DataProvider
+from fxtbot.enums import CandleType, RunMode
+from fxtbot.exceptions import ExchangeError, OperationalException
+from fxtbot.plugins.pairlistmanager import PairListManager
 from tests.conftest import EXMS, generate_test_data, get_patched_exchange
 
 
@@ -53,7 +53,7 @@ def test_dp_ohlcv(mocker, default_conf, ohlcv_history, candle_type):
 
 def test_historic_ohlcv(mocker, default_conf, ohlcv_history):
     historymock = MagicMock(return_value=ohlcv_history)
-    mocker.patch("freqtrade.data.dataprovider.load_pair_history", historymock)
+    mocker.patch("fxtbot.data.dataprovider.load_pair_history", historymock)
 
     dp = DataProvider(default_conf, None)
     data = dp.historic_ohlcv("UNITTEST/BTC", "5m")
@@ -65,7 +65,7 @@ def test_historic_ohlcv(mocker, default_conf, ohlcv_history):
 def test_historic_trades(mocker, default_conf, trades_history_df):
     historymock = MagicMock(return_value=trades_history_df)
     mocker.patch(
-        "freqtrade.data.history.datahandlers.featherdatahandler.FeatherDataHandler._trades_load",
+        "fxtbot.data.history.datahandlers.featherdatahandler.FeatherDataHandler._trades_load",
         historymock,
     )
 
@@ -95,11 +95,11 @@ def test_historic_ohlcv_dataformat(mocker, default_conf, ohlcv_history):
     parquetloadmock = MagicMock(return_value=ohlcv_history)
     featherloadmock = MagicMock(return_value=ohlcv_history)
     mocker.patch(
-        "freqtrade.data.history.datahandlers.parquetdatahandler.ParquetDataHandler._ohlcv_load",
+        "fxtbot.data.history.datahandlers.parquetdatahandler.ParquetDataHandler._ohlcv_load",
         parquetloadmock,
     )
     mocker.patch(
-        "freqtrade.data.history.datahandlers.featherdatahandler.FeatherDataHandler._ohlcv_load",
+        "fxtbot.data.history.datahandlers.featherdatahandler.FeatherDataHandler._ohlcv_load",
         featherloadmock,
     )
 
@@ -170,7 +170,7 @@ def test_get_pair_dataframe(mocker, default_conf, ohlcv_history, candle_type):
     assert dp.get_pair_dataframe("NONSENSE/AAA", timeframe, candle_type=candle_type).empty
 
     historymock = MagicMock(return_value=ohlcv_history)
-    mocker.patch("freqtrade.data.dataprovider.load_pair_history", historymock)
+    mocker.patch("fxtbot.data.dataprovider.load_pair_history", historymock)
     default_conf["runmode"] = RunMode.BACKTEST
     dp = DataProvider(default_conf, exchange)
     assert dp.runmode == RunMode.BACKTEST
@@ -248,9 +248,9 @@ def test_get_producer_df(default_conf):
 
 
 def test_emit_df(mocker, default_conf, ohlcv_history):
-    mocker.patch("freqtrade.rpc.rpc_manager.RPCManager.__init__", MagicMock())
-    rpc_mock = mocker.patch("freqtrade.rpc.rpc_manager.RPCManager", MagicMock())
-    send_mock = mocker.patch("freqtrade.rpc.rpc_manager.RPCManager.send_msg", MagicMock())
+    mocker.patch("fxtbot.rpc.rpc_manager.RPCManager.__init__", MagicMock())
+    rpc_mock = mocker.patch("fxtbot.rpc.rpc_manager.RPCManager", MagicMock())
+    send_mock = mocker.patch("fxtbot.rpc.rpc_manager.RPCManager.send_msg", MagicMock())
 
     dataprovider = DataProvider(default_conf, exchange=None, rpc=rpc_mock)
     dataprovider_no_rpc = DataProvider(default_conf, exchange=None)

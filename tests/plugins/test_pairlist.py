@@ -10,15 +10,15 @@ import pandas as pd
 import pytest
 import time_machine
 
-from freqtrade.constants import AVAILABLE_PAIRLISTS
-from freqtrade.data.dataprovider import DataProvider
-from freqtrade.enums import CandleType, RunMode
-from freqtrade.exceptions import OperationalException
-from freqtrade.persistence import LocalTrade, Trade
-from freqtrade.plugins.pairlist.pairlist_helpers import dynamic_expand_pairlist, expand_pairlist
-from freqtrade.plugins.pairlistmanager import PairListManager
-from freqtrade.resolvers import PairListResolver
-from freqtrade.util.datetime_helpers import dt_now
+from fxtbot.constants import AVAILABLE_PAIRLISTS
+from fxtbot.data.dataprovider import DataProvider
+from fxtbot.enums import CandleType, RunMode
+from fxtbot.exceptions import OperationalException
+from fxtbot.persistence import LocalTrade, Trade
+from fxtbot.plugins.pairlist.pairlist_helpers import dynamic_expand_pairlist, expand_pairlist
+from fxtbot.plugins.pairlistmanager import PairListManager
+from fxtbot.resolvers import PairListResolver
+from fxtbot.util.datetime_helpers import dt_now
 from tests.conftest import (
     EXMS,
     create_mock_trades_usdt,
@@ -323,7 +323,7 @@ def test_refresh_pairlist_dynamic_2(mocker, shitcoinmarkets, tickers, whitelist_
     )
     # Remove caching of ticker data to emulate changing volume by the time of second call
     mocker.patch.multiple(
-        "freqtrade.plugins.pairlistmanager.PairListManager",
+        "fxtbot.plugins.pairlistmanager.PairListManager",
         _get_cached_tickers=MagicMock(return_value=tickers_dict),
     )
     freqtrade = get_patched_freqtradebot(mocker, whitelist_conf_2)
@@ -804,7 +804,7 @@ def test_VolumePairList_whitelist_gen(
 
     # Provide for PerformanceFilter's dependency
     mocker.patch.multiple(
-        "freqtrade.persistence.Trade", get_overall_performance=MagicMock(return_value=[])
+        "fxtbot.persistence.Trade", get_overall_performance=MagicMock(return_value=[])
     )
 
     # Set whitelist_result to None if pairlist is invalid and should produce exception
@@ -1975,7 +1975,7 @@ def test_performance_filter(
         get_historic_ohlcv=MagicMock(return_value=ohlcv_history_list),
     )
     mocker.patch.multiple(
-        "freqtrade.persistence.Trade",
+        "fxtbot.persistence.Trade",
         get_overall_performance=MagicMock(return_value=overall_performance),
     )
     freqtrade.pairlists.refresh_pairlist()
@@ -2336,7 +2336,7 @@ def test_MarketCapPairList_filter(
         exchange_has=MagicMock(return_value=True),
     )
     mocker.patch(
-        "freqtrade.plugins.pairlist.MarketCapPairList.FtCoinGeckoApi.get_coins_categories_list",
+        "fxtbot.plugins.pairlist.MarketCapPairList.FtCoinGeckoApi.get_coins_categories_list",
         return_value=[
             {"category_id": "layer-1"},
             {"category_id": "protocol"},
@@ -2345,7 +2345,7 @@ def test_MarketCapPairList_filter(
     )
 
     gcm_mock = mocker.patch(
-        "freqtrade.plugins.pairlist.MarketCapPairList.FtCoinGeckoApi.get_coins_markets",
+        "fxtbot.plugins.pairlist.MarketCapPairList.FtCoinGeckoApi.get_coins_markets",
         return_value=test_value,
     )
 
@@ -2392,7 +2392,7 @@ def test_MarketCapPairList_timing(mocker, default_conf_usdt, markets, time_machi
     )
 
     mocker.patch(
-        "freqtrade.plugins.pairlist.MarketCapPairList.FtCoinGeckoApi.get_coins_markets",
+        "fxtbot.plugins.pairlist.MarketCapPairList.FtCoinGeckoApi.get_coins_markets",
         return_value=test_value,
     )
 
@@ -2434,7 +2434,7 @@ def test_MarketCapPairList_filter_special_no_pair_from_coingecko(
 
     # Simulate no pair returned from coingecko
     gcm_mock = mocker.patch(
-        "freqtrade.plugins.pairlist.MarketCapPairList.FtCoinGeckoApi.get_coins_markets",
+        "fxtbot.plugins.pairlist.MarketCapPairList.FtCoinGeckoApi.get_coins_markets",
         return_value=[],
     )
 
@@ -2461,7 +2461,7 @@ def test_MarketCapPairList_exceptions(mocker, default_conf_usdt, caplog):
     assert log_has_re("The max rank you have set \\(500\\) is quite high", caplog)
     # Test invalid coinmarkets list
     mocker.patch(
-        "freqtrade.plugins.pairlist.MarketCapPairList.FtCoinGeckoApi.get_coins_categories_list",
+        "fxtbot.plugins.pairlist.MarketCapPairList.FtCoinGeckoApi.get_coins_categories_list",
         return_value=[
             {"category_id": "layer-1"},
             {"category_id": "protocol"},

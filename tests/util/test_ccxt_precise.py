@@ -1,4 +1,4 @@
-from freqtrade.util import FtPrecise
+from fxtbot.util import FtPrecise
 
 
 ws = FtPrecise("-1.123e-6")

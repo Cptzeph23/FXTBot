@@ -73,12 +73,12 @@ The dataframe column `exit_long` is added to the dataframe, and when a value of 
 Here is a minimal example of a Freqtrade strategy:
 
 ```python
-from freqtrade.strategy import IStrategy
+from fxtbot.strategy import IStrategy
 from pandas import DataFrame
 import talib.abstract as ta
 
-class MyStrategy(IStrategy):
 
+class MyStrategy(IStrategy):
     timeframe = '15m'
 
     # set the initial stoploss to -10%

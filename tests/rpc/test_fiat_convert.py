@@ -7,8 +7,8 @@ from unittest.mock import MagicMock
 import pytest
 from requests.exceptions import RequestException
 
-from freqtrade.rpc.fiat_convert import CryptoToFiatConverter
-from freqtrade.util.coin_gecko import FtCoinGeckoApi
+from fxtbot.rpc.fiat_convert import CryptoToFiatConverter
+from fxtbot.util.coin_gecko import FtCoinGeckoApi
 from tests.conftest import log_has, log_has_re
 
 
@@ -34,7 +34,7 @@ def test_fiat_convert_find_price(mocker):
     fiat_convert._coinlistings = {}
     fiat_convert._backoff = 0
     mocker.patch(
-        "freqtrade.rpc.fiat_convert.CryptoToFiatConverter._load_cryptomap", return_value=None
+        "fxtbot.rpc.fiat_convert.CryptoToFiatConverter._load_cryptomap", return_value=None
     )
     assert fiat_convert.get_price(crypto_symbol="BTC", fiat_symbol="EUR") == 0.0
 
@@ -44,19 +44,19 @@ def test_fiat_convert_find_price(mocker):
     assert fiat_convert.get_price(crypto_symbol="XRP", fiat_symbol="USD") == 0.0
 
     mocker.patch(
-        "freqtrade.rpc.fiat_convert.CryptoToFiatConverter._find_price", return_value=12345.0
+        "fxtbot.rpc.fiat_convert.CryptoToFiatConverter._find_price", return_value=12345.0
     )
     assert fiat_convert.get_price(crypto_symbol="BTC", fiat_symbol="USD") == 12345.0
     assert fiat_convert.get_price(crypto_symbol="btc", fiat_symbol="usd") == 12345.0
 
     mocker.patch(
-        "freqtrade.rpc.fiat_convert.CryptoToFiatConverter._find_price", return_value=13000.2
+        "fxtbot.rpc.fiat_convert.CryptoToFiatConverter._find_price", return_value=13000.2
     )
     assert fiat_convert.get_price(crypto_symbol="BTC", fiat_symbol="EUR") == 13000.2
 
 
 def test_fiat_convert_unsupported_crypto(mocker, caplog):
-    mocker.patch("freqtrade.rpc.fiat_convert.CryptoToFiatConverter._coinlistings", return_value=[])
+    mocker.patch("fxtbot.rpc.fiat_convert.CryptoToFiatConverter._coinlistings", return_value=[])
     fiat_convert = CryptoToFiatConverter({})
     assert fiat_convert._find_price(crypto_symbol="CRYPTO_123", fiat_symbol="EUR") == 0.0
     assert log_has("unsupported crypto-symbol CRYPTO_123 - returning 0.0", caplog)
@@ -64,7 +64,7 @@ def test_fiat_convert_unsupported_crypto(mocker, caplog):
 
 def test_fiat_convert_get_price(mocker):
     find_price = mocker.patch(
-        "freqtrade.rpc.fiat_convert.CryptoToFiatConverter._find_price", return_value=28000.0
+        "fxtbot.rpc.fiat_convert.CryptoToFiatConverter._find_price", return_value=28000.0
     )
 
     fiat_convert = CryptoToFiatConverter({})
@@ -109,7 +109,7 @@ def test_fiat_init_network_exception(mocker):
     # Because CryptoToFiatConverter is a Singleton we reset the listings
     listmock = MagicMock(side_effect=RequestException)
     mocker.patch.multiple(
-        "freqtrade.rpc.fiat_convert.FtCoinGeckoApi",
+        "fxtbot.rpc.fiat_convert.FtCoinGeckoApi",
         get_coins_list=listmock,
     )
     # with pytest.raises(RequestEsxception):
@@ -138,7 +138,7 @@ def test_fiat_too_many_requests_response(mocker, caplog):
     req_exception = "429 Too Many Requests"
     listmock = MagicMock(return_value="{}", side_effect=RequestException(req_exception))
     mocker.patch.multiple(
-        "freqtrade.rpc.fiat_convert.FtCoinGeckoApi",
+        "fxtbot.rpc.fiat_convert.FtCoinGeckoApi",
         get_coins_list=listmock,
     )
     # with pytest.raises(RequestEsxception):
@@ -174,7 +174,7 @@ def test_fiat_invalid_response(mocker, caplog):
     # Because CryptoToFiatConverter is a Singleton we reset the listings
     listmock = MagicMock(return_value=None)
     mocker.patch.multiple(
-        "freqtrade.rpc.fiat_convert.FtCoinGeckoApi",
+        "fxtbot.rpc.fiat_convert.FtCoinGeckoApi",
         get_coins_list=listmock,
     )
     # with pytest.raises(RequestEsxception):
@@ -189,7 +189,7 @@ def test_fiat_invalid_response(mocker, caplog):
 
 
 def test_convert_amount(mocker):
-    mocker.patch("freqtrade.rpc.fiat_convert.CryptoToFiatConverter.get_price", return_value=12345.0)
+    mocker.patch("fxtbot.rpc.fiat_convert.CryptoToFiatConverter.get_price", return_value=12345.0)
 
     fiat_convert = CryptoToFiatConverter({})
     result = fiat_convert.convert_amount(crypto_amount=1.23, crypto_symbol="BTC", fiat_symbol="USD")

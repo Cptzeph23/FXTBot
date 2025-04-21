@@ -6,10 +6,10 @@ from unittest.mock import MagicMock
 
 from requests import RequestException
 
-from freqtrade.enums import ExitType, RPCMessageType
-from freqtrade.rpc import RPC
-from freqtrade.rpc.discord import Discord
-from freqtrade.rpc.webhook import Webhook
+from fxtbot.enums import ExitType, RPCMessageType
+from fxtbot.rpc import RPC
+from fxtbot.rpc.discord import Discord
+from fxtbot.rpc.webhook import Webhook
 from tests.conftest import get_patched_freqtradebot, log_has
 
 
@@ -70,11 +70,11 @@ def test__init__(mocker, default_conf):
 def test_send_msg_webhook(default_conf, mocker):
     default_conf["webhook"] = get_webhook_dict()
     msg_mock = MagicMock()
-    mocker.patch("freqtrade.rpc.webhook.Webhook._send_msg", msg_mock)
+    mocker.patch("fxtbot.rpc.webhook.Webhook._send_msg", msg_mock)
     webhook = Webhook(RPC(get_patched_freqtradebot(mocker, default_conf)), default_conf)
     # Test buy
     msg_mock = MagicMock()
-    mocker.patch("freqtrade.rpc.webhook.Webhook._send_msg", msg_mock)
+    mocker.patch("fxtbot.rpc.webhook.Webhook._send_msg", msg_mock)
     msg = {
         "type": RPCMessageType.ENTRY,
         "exchange": "Binance",
@@ -348,7 +348,7 @@ def test_send_msg_webhook(default_conf, mocker):
         # Test notification
         msg = {"type": msgtype, "status": "Unfilled sell order for BTC cancelled due to timeout"}
         msg_mock = MagicMock()
-        mocker.patch("freqtrade.rpc.webhook.Webhook._send_msg", msg_mock)
+        mocker.patch("fxtbot.rpc.webhook.Webhook._send_msg", msg_mock)
         webhook.send_msg(msg)
         assert msg_mock.call_count == 1
         assert msg_mock.call_args[0][0]["value1"] == default_conf["webhook"]["webhookstatus"][
@@ -375,7 +375,7 @@ def test_exception_send_msg(default_conf, mocker, caplog):
     default_conf["webhook"] = get_webhook_dict()
     default_conf["webhook"]["strategy_msg"] = {"value1": "{DEADBEEF:8f}"}
     msg_mock = MagicMock()
-    mocker.patch("freqtrade.rpc.webhook.Webhook._send_msg", msg_mock)
+    mocker.patch("fxtbot.rpc.webhook.Webhook._send_msg", msg_mock)
     webhook = Webhook(RPC(get_patched_freqtradebot(mocker, default_conf)), default_conf)
     msg = {
         "type": RPCMessageType.STRATEGY_MSG,
@@ -403,7 +403,7 @@ def test__send_msg(default_conf, mocker, caplog):
     webhook = Webhook(RPC(get_patched_freqtradebot(mocker, default_conf)), default_conf)
     msg = {"value1": "DEADBEEF", "value2": "ALIVEBEEF", "value3": "FREQTRADE"}
     post = MagicMock()
-    mocker.patch("freqtrade.rpc.webhook.post", post)
+    mocker.patch("fxtbot.rpc.webhook.post", post)
     webhook._send_msg(msg)
 
     assert post.call_count == 1
@@ -411,7 +411,7 @@ def test__send_msg(default_conf, mocker, caplog):
     assert post.call_args[0] == (default_conf["webhook"]["url"],)
 
     post = MagicMock(side_effect=RequestException)
-    mocker.patch("freqtrade.rpc.webhook.post", post)
+    mocker.patch("fxtbot.rpc.webhook.post", post)
     webhook._send_msg(msg)
     assert log_has("Could not call webhook url. Exception: ", caplog)
 
@@ -422,7 +422,7 @@ def test__send_msg_with_json_format(default_conf, mocker, caplog):
     webhook = Webhook(RPC(get_patched_freqtradebot(mocker, default_conf)), default_conf)
     msg = {"text": "Hello"}
     post = MagicMock()
-    mocker.patch("freqtrade.rpc.webhook.post", post)
+    mocker.patch("fxtbot.rpc.webhook.post", post)
     webhook._send_msg(msg)
 
     assert post.call_args[1] == {"json": msg, "timeout": 10}
@@ -434,7 +434,7 @@ def test__send_msg_with_raw_format(default_conf, mocker, caplog):
     webhook = Webhook(RPC(get_patched_freqtradebot(mocker, default_conf)), default_conf)
     msg = {"data": "Hello"}
     post = MagicMock()
-    mocker.patch("freqtrade.rpc.webhook.post", post)
+    mocker.patch("fxtbot.rpc.webhook.post", post)
     webhook._send_msg(msg)
 
     assert post.call_args[1] == {
@@ -447,7 +447,7 @@ def test__send_msg_with_raw_format(default_conf, mocker, caplog):
 def test_send_msg_discord(default_conf, mocker):
     default_conf["discord"] = {"enabled": True, "webhook_url": "https://webhookurl..."}
     msg_mock = MagicMock()
-    mocker.patch("freqtrade.rpc.webhook.Webhook._send_msg", msg_mock)
+    mocker.patch("fxtbot.rpc.webhook.Webhook._send_msg", msg_mock)
     discord = Discord(RPC(get_patched_freqtradebot(mocker, default_conf)), default_conf)
 
     msg = {
